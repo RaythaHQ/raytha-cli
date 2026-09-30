@@ -1,0 +1,51 @@
+{% assign ct = widget.settings.contentType | default: "expeditions" %}
+{% assign limit = widget.settings.limit | default: 6 %}
+{% assign order = widget.settings.orderBy | default: "departure_date asc" %}
+{% if widget.settings.viewId %}
+  {% assign list = get_content_items(ContentType=ct, ViewId=widget.settings.viewId, Filter=widget.settings.filter, OrderBy=order, PageSize=limit) %}
+{% else %}
+  {% assign list = get_content_items(ContentType=ct, Filter=widget.settings.filter, OrderBy=order, PageSize=limit) %}
+{% endif %}
+{% assign layout = widget.settings.layout | default: "rail" %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} data-rail>
+  <div class="container">
+    <div class="head-flex section-head reveal" style="max-width:none">
+      <div style="max-width:720px">
+        {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+        <h2 style="margin-bottom:.3em">{{ widget.settings.heading }}</h2>
+        {% if widget.settings.intro %}<p class="lede" style="margin:0">{{ widget.settings.intro }}</p>{% endif %}
+      </div>
+      {% if layout == "rail" %}<div class="rail-nav"><button data-dir="-1" aria-label="Previous"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button><button data-dir="1" aria-label="Next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
+      {% elsif widget.settings.ctaText %}<a class="btn btn-ghost" href="{{ widget.settings.ctaUrl }}">{{ widget.settings.ctaText }}</a>{% endif %}
+    </div>
+  </div>
+  {% if layout == "rail" %}<div class="rail">{% elsif layout == "grid" %}<div class="container"><div class="trip-grid">{% else %}<div class="container"><div class="spotlight">{% endif %}
+  {% for e in list.Items %}
+    {% assign c = e.PublishedContent %}
+    {% capture card %}
+    <article class="card trip reveal" style="--i:{{ forloop.index0 }};--accent:{{ c.accent.Value | default: '#37ffb0' }}">
+      <div class="card-media">
+        {% if c.hero_image.Value %}<img loading="lazy" src="{{ c.hero_image.Value | attachment_redirect_url }}" alt="{{ e.PrimaryField | escape }}">{% endif %}
+        <span class="pill tag"><span class="dot"></span>{{ c.region.Value | @region }}</span>
+        {% if c.aurora_odds.Value %}<span class="odds">&#9680; {{ c.aurora_odds.Value }}% aurora odds</span>{% endif %}
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;flex:1">
+        <h3><a class="stretch" href="{{ PathBase }}/{{ e.RoutePath }}" style="color:inherit">{{ e.PrimaryField }}</a></h3>
+        <p>{{ c.tagline.Value }}</p>
+        <div class="meta">
+          <span><b>{{ c.duration_nights.Value }}</b> nights</span>
+          <span>{{ c.difficulty.Value | @difficulty }}</span>
+          <span>Departs <b>{{ c.departure_date.Value | date: "%b %e, %Y" }}</b></span>
+          <div class="price"><small>from</small>${{ c.price_usd.Value | divided_by: 1000 }},{{ c.price_usd.Value | modulo: 1000 | prepend: "000" | slice: -3, 3 }}</div>
+        </div>
+      </div>
+    </article>
+    {% endcapture %}
+    {% if layout == "spotlight" and forloop.first %}<div class="big">{{ card }}</div><div class="stack">
+    {% elsif layout == "spotlight" %}{{ card | replace: 'class="card trip reveal"', 'class="card trip mini reveal"' }}
+    {% else %}{{ card }}{% endif %}
+  {% endfor %}
+  {% if layout == "spotlight" %}</div>{% endif %}
+  {% if layout == "rail" %}</div>{% else %}</div></div>{% endif %}
+  {% if layout == "rail" and widget.settings.ctaText %}<div class="container" style="margin-top:8px"><a class="btn btn-ghost" href="{{ widget.settings.ctaUrl }}">{{ widget.settings.ctaText }}</a></div>{% endif %}
+</section>

@@ -1,0 +1,51 @@
+{% assign c = Target.PublishedContent %}
+{% assign score = c.visibility.Value | default: 5 %}
+{% assign ex = c.best_expedition %}
+<section class="page-hero" style="--accent:{{ c.event_color.Value | default: '#37ffb0' }}">
+  {% if c.poster.Value %}<div class="bg" style="background-image:url('{{ c.poster.Value | attachment_redirect_url }}')"></div>{% endif %}
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/sky">Sky calendar</a><span>{{ Target.PrimaryField }}</span></nav>
+    <div class="chips" style="margin-bottom:24px"><span class="pill live"><span class="dot"></span>{{ c.event_type.Value | @event_type }}</span>{% if c.livestream.Value %}<span class="pill">Live from the station</span>{% endif %}</div>
+    <h1>{{ Target.PrimaryField }}</h1>
+    <p class="lede">{{ c.starts_on.Value | date: "%A, %B %e, %Y" }}{% if c.ends_on.Value and c.ends_on.Value != c.starts_on.Value %} &rarr; {{ c.ends_on.Value | date: "%B %e" }}{% endif %}</p>
+  </div>
+</section>
+<section class="section" style="padding-top:30px">
+  <div class="container">
+    <div class="detail">
+      <div>
+        <div class="prose reveal">{{ c.content.Value }}</div>
+        {% if c.viewing_tip.Value %}<div class="panel reveal" style="margin-top:34px"><h4>Viewing tip</h4><p style="margin:0;font-size:1.05rem;color:#fff">{{ c.viewing_tip.Value }}</p></div>{% endif %}
+        {% if c.schedule.Value.size > 0 %}
+          <h2 class="reveal" style="margin-top:1.6em">The night, hour by hour</h2>
+          <div class="sched reveal" style="margin-top:22px">
+            {% for s in c.schedule.Value %}<div><time>{{ s.time }}</time><span style="color:#fff">{{ s.activity }}</span>{% if s.public %}<span class="pill">Open to visitors</span>{% else %}<span class="pill" style="opacity:.6">Guests only</span>{% endif %}</div>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <aside class="aside">
+        <div class="panel reveal">
+          <h4>Forecast</h4>
+          <div class="meter" style="height:54px;margin-bottom:18px">{% for i in (1..10) %}<i class="{% if i <= score %}on{% endif %}" style="height:{{ i | times: 4 | plus: 10 }}px;width:10px"></i>{% endfor %}</div>
+          <dl class="facts">
+            <div><dt>Visibility</dt><dd style="color:var(--accent)">{{ score }} / 10</dd></div>
+            {% if c.expected_kp.Value %}<div><dt>Expected Kp</dt><dd>{{ c.expected_kp.Value }}</dd></div>{% endif %}
+            <div><dt>Starts</dt><dd>{{ c.starts_on.Value | date: "%b %e, %Y" }}</dd></div>
+            <div><dt>Ends</dt><dd>{{ c.ends_on.Value | date: "%b %e, %Y" }}</dd></div>
+            <div><dt>Live stream</dt><dd>{% if c.livestream.Value %}Yes{% else %}No{% endif %}</dd></div>
+            <div><dt>Colour</dt><dd><span class="swatch" style="background:{{ c.event_color.Value }}"></span>{{ c.event_color.Value }}</dd></div>
+          </dl>
+        </div>
+        {% if ex %}
+        <div class="panel reveal" style="--accent:{{ ex.PublishedContent.accent.Value | default: '#37ffb0' }}">
+          <h4>Best expedition for it</h4>
+          <a class="card trip" style="display:block;color:inherit" href="{{ PathBase }}/{{ ex.RoutePath }}">
+            {% if ex.PublishedContent.hero_image.Value %}<div class="card-media" style="aspect-ratio:16/9"><img loading="lazy" src="{{ ex.PublishedContent.hero_image.Value | attachment_redirect_url }}" alt=""></div>{% endif %}
+            <div class="card-body" style="padding:18px 20px"><h3 style="font-size:1.1rem;margin:0">{{ ex.PrimaryField }}</h3></div>
+          </a>
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</section>

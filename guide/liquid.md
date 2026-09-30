@@ -13,8 +13,10 @@ examples are the built-in templates: `raytha theme pull raytha_default_theme ./r
 | content item detail | one content item | `Target` (the item) |
 | widget template | one widget on a page | `widget` |
 
-Every non-layout template starts with `{% layout 'raytha_html_base_layout' %}` (or your own layout's
-developer name). The layout outputs the child with `{% renderbody %}`.
+Non-layout templates do **not** contain a `{% layout %}` tag (Raytha fails at render time with
+"Unknown tag 'layout'"). The parent layout is the template's `parent` setting (the `parent` field of the
+sidecar JSON, or `--parent` on `web-template create`), and the layout outputs the child with
+`{% renderbody %}`.
 
 ## Base layout skeleton
 
@@ -46,7 +48,6 @@ The default theme uses Bootstrap 5 and Bootstrap Icons from a CDN. Replacing the
 ## Site page template
 
 ```liquid
-{% layout 'raytha_html_base_layout' %}
 <section>{{ render_section("hero") }}</section>
 <div class="container">{{ render_section("main") }}</div>
 ```

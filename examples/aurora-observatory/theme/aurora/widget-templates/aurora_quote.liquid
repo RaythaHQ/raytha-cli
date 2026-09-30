@@ -1,0 +1,11 @@
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="--accent:{{ widget.settings.accent | default: '#37ffb0' }}">
+  <div class="container">
+    <figure class="big-quote reveal" style="margin:0">
+      <blockquote>{{ widget.settings.quote }}</blockquote>
+      <figcaption class="who">
+        {% if widget.settings.avatar %}<img loading="lazy" src="{{ widget.settings.avatar }}" alt="">{% endif %}
+        <div><b>{{ widget.settings.author }}</b><small>{{ widget.settings.role }}</small></div>
+      </figcaption>
+    </figure>
+  </div>
+</section>

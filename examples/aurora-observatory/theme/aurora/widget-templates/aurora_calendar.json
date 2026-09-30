@@ -1,0 +1,12 @@
+{
+  "label": "Sky calendar",
+  "fields": [
+    {"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+    {"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+    {"developerName": "intro", "label": "Intro", "fieldType": "long_text"},
+    {"developerName": "onlyStorms", "label": "Storm watches only", "fieldType": "checkbox"},
+    {"developerName": "limit", "label": "How many", "fieldType": "number", "defaultValue": 6},
+    {"developerName": "ctaText", "label": "Button text", "fieldType": "single_line_text"},
+    {"developerName": "ctaUrl", "label": "Button link", "fieldType": "single_line_text"}
+  ]
+}

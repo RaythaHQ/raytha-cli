@@ -1,0 +1,14 @@
+{
+  "label": "Glow timeline",
+  "fields": [
+    {"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+    {"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+    {"developerName": "intro", "label": "Intro", "fieldType": "long_text"},
+    {"developerName": "items", "label": "Milestones", "fieldType": "repeater", "subFields": [
+      {"developerName": "when", "label": "When", "fieldType": "single_line_text", "isRequired": true},
+      {"developerName": "title", "label": "Title", "fieldType": "single_line_text", "isRequired": true},
+      {"developerName": "text", "label": "Text", "fieldType": "long_text"},
+      {"developerName": "color", "label": "Accent", "fieldType": "color"}
+    ]}
+  ]
+}

@@ -1,0 +1,8 @@
+<section class="error-page"><div class="container">
+  <div class="num">404</div>
+  <h1 style="font-size:clamp(1.8rem,4vw,3rem);margin:.2em 0">Lost in the dark</h1>
+  <p class="lede" style="margin-inline:auto">That page drifted out of range. The aurora moves on, so let's get you back to somewhere with a view.</p>
+  {% if Target.ErrorId %}<p class="pill" style="margin-top:14px">Error id: {{ Target.ErrorId }}</p>{% endif %}
+  {% if Target.ErrorMessage %}<p style="color:var(--ink-2)">{{ Target.ErrorMessage }}</p>{% endif %}
+  <div class="hero-actions" style="justify-content:center;margin-top:30px"><a class="btn btn-primary" href="{{ PathBase }}/">Back to the home page</a><a class="btn btn-ghost" href="{{ PathBase }}/expeditions">Browse expeditions</a></div>
+</div></section>

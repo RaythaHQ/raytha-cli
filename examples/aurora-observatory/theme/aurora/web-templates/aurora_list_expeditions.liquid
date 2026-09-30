@@ -1,0 +1,38 @@
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} expeditions &middot; every one led by a named guide</div>
+    <h1>{{ Target.Label }}: <em class="grad-text">pick your sky</em></h1>
+    <p class="lede">From a two-night station stay to ten days on the ice cap. Every departure is capped at a small group, and every night is planned around the forecast, not the clock.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="filters reveal" data-filters="#trips" data-key="cat">@@chips:region@@</div>
+    <div class="filters reveal" data-filters="#trips" data-key="season" style="margin-top:-18px"><button class="on" data-f="all">Any season</button>@@chips_only:seasons@@</div>
+    {% if Target.Items.size == 0 %}<div class="empty">No expeditions match this view yet.</div>{% endif %}
+    <div class="trip-grid" id="trips">
+      {% for e in Target.Items %}
+        {% assign c = e.PublishedContent %}
+        <article class="card trip reveal" data-filter-item data-cat="{{ c.region.Value }}" data-season="{{ c.seasons.Value | join: ' ' }}" style="--i:{{ forloop.index0 | modulo: 6 }};--accent:{{ c.accent.Value | default: '#37ffb0' }}">
+          <div class="card-media">
+            {% if c.hero_image.Value %}<img loading="lazy" src="{{ c.hero_image.Value | attachment_redirect_url }}" alt="{{ e.PrimaryField | escape }}">{% endif %}
+            <span class="pill tag"><span class="dot"></span>{{ c.region.Value | @region }}</span>
+            {% if c.aurora_odds.Value %}<span class="odds">&#9680; {{ c.aurora_odds.Value }}% aurora odds</span>{% endif %}
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;flex:1">
+            <h3><a class="stretch" href="{{ PathBase }}/{{ e.RoutePath }}" style="color:inherit">{{ e.PrimaryField }}</a></h3>
+            <p>{{ c.summary.Value | truncate: 130 }}</p>
+            <div class="chips" style="margin-bottom:18px">{% for s in c.seasons.Value %}<span class="pill">{{ s | @season }}</span>{% endfor %}<span class="pill">{{ c.difficulty.Value | @difficulty }}</span></div>
+            <div class="meta">
+              <span><b>{{ c.duration_nights.Value }}</b> nights</span>
+              <span>Departs <b>{{ c.departure_date.Value | date: "%b %e, %Y" }}</b></span>
+              <div class="price"><small>from</small>${{ c.price_usd.Value | divided_by: 1000 }},{{ c.price_usd.Value | modulo: 1000 | prepend: "000" | slice: -3, 3 }}</div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

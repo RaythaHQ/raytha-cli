@@ -1,0 +1,9 @@
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="padding:clamp(40px,6vw,80px) 0">
+  <div class="container">
+    <div class="stats-band reveal">
+      {% for s in widget.settings.items %}
+        <div class="stat"><b data-count="{{ s.value }}" data-suffix="{{ s.suffix }}">0</b><span>{{ s.label }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

@@ -163,7 +163,7 @@ pub enum ViewsCmd {
     Filter {
         content_type: String,
         id: String,
-        /// Conditions: [{"id":"<uuid>","type":"condition","groupOperator":"AND","field":"title","conditionOperator":"contains","value":"x"}].
+        /// Conditions: [{"id":"<uuid>","type":"filter_condition","groupOperator":"AND","field":"title","conditionOperator":"contains","value":"x"}].
         #[arg(long, value_name = "JSON|@PATH|-")]
         conditions: String,
     },

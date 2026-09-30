@@ -102,11 +102,38 @@ enum Command {
     Spec(commands::spec::SpecArgs),
 }
 
+/// Raytha ids are URL-safe base64, so roughly one in 32 starts with `-`. Let id positionals accept that
+/// instead of clap treating it as a flag.
+fn hyphen_tolerant_ids(cmd: clap::Command) -> clap::Command {
+    let ids: Vec<String> = cmd
+        .get_positionals()
+        .filter(|a| a.get_id() == "id" || a.get_id().as_str().ends_with("_id"))
+        .map(|a| a.get_id().to_string())
+        .collect();
+    let mut cmd = ids
+        .into_iter()
+        .fold(cmd, |c, id| c.mut_arg(id, |a| a.allow_hyphen_values(true)));
+    let names: Vec<String> = cmd
+        .get_subcommands()
+        .map(|c| c.get_name().to_string())
+        .collect();
+    for n in names {
+        cmd = cmd.mut_subcommand(n, hyphen_tolerant_ids);
+    }
+    cmd
+}
+
+fn parse_cli() -> std::result::Result<Cli, clap::Error> {
+    use clap::{CommandFactory, FromArgMatches};
+    let matches = hyphen_tolerant_ids(Cli::command()).try_get_matches()?;
+    Cli::from_arg_matches(&matches)
+}
+
 fn main() {
     // `ring` rather than aws-lc: it cross-compiles to static musl targets without a C++/cmake toolchain.
     let _ = rustls::crypto::ring::default_provider().install_default();
     let pretty = std::env::args().any(|a| a == "--pretty");
-    let cli = match Cli::try_parse() {
+    let cli = match parse_cli() {
         Ok(cli) => cli,
         Err(e) => {
             use clap::error::ErrorKind;

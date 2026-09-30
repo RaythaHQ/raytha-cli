@@ -1,0 +1,26 @@
+{% assign limit = widget.settings.limit | default: 6 %}
+{% assign list = get_content_items(ContentType="instruments", OrderBy="installed_on asc", PageSize=limit) %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="container">
+    <div class="section-head reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="inst-grid">
+      {% for i in list.Items %}
+        {% assign c = i.PublishedContent %}
+        <article class="card inst reveal" style="--i:{{ forloop.index0 }};--accent:{{ c.glow.Value | default: '#37ffb0' }}">
+          <div class="card-media">{% if c.photo.Value %}<img loading="lazy" src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ i.PrimaryField | escape }}">{% endif %}</div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span class="pill">{{ c.kind.Value | @kind }}</span><span class="status {{ c.status.Value }}"><i></i>{{ c.status.Value | @status }}</span></div>
+            <h3><a class="stretch" href="{{ PathBase }}/{{ i.RoutePath }}" style="color:inherit">{{ i.PrimaryField }}</a></h3>
+            <dl class="specs">
+              {% for s in c.specs.Value %}{% if s.notable %}<div class="hl"><dt>{{ s.label }}</dt><dd>{{ s.value }}</dd></div>{% endif %}{% endfor %}
+            </dl>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

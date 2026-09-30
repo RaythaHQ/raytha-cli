@@ -1,0 +1,50 @@
+{% assign c = Target.PublishedContent %}
+<section class="page-hero" style="--accent:{{ c.accent.Value | default: '#37ffb0' }}">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/team">Guides</a><span>{{ Target.PrimaryField }}</span></nav>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,5vw,64px);align-items:center" class="guide-head">
+      <div class="person" style="padding:0;background:none;border:0"><div class="ph" style="width:clamp(150px,22vw,260px);height:clamp(150px,22vw,260px);margin:0">{% if c.portrait.Value %}<img src="{{ c.portrait.Value | attachment_redirect_url }}" alt="{{ Target.PrimaryField | escape }}">{% endif %}</div></div>
+      <div>
+        <div class="chips" style="margin-bottom:22px"><span class="pill live"><span class="dot"></span>{{ c.role.Value }}</span>{% if c.is_lead_guide.Value %}<span class="pill" style="color:#ffd166">&#9733; Lead guide</span>{% endif %}<span class="pill">{{ c.base_region.Value | @region }}</span></div>
+        <h1 style="font-size:clamp(2.4rem,5vw,4.2rem);margin-bottom:.25em">{{ Target.PrimaryField }}</h1>
+        <p class="lede" style="font-family:var(--display);font-style:italic;color:#fff">&ldquo;{{ c.quote.Value }}&rdquo;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" style="padding-top:30px">
+  <div class="container">
+    <div class="detail">
+      <div>
+        <div class="prose reveal">{{ c.content.Value }}</div>
+
+        {% assign trips = get_content_items(ContentType="expeditions", OrderBy="departure_date asc", PageSize=50) %}
+        {% capture me %}{{ Target.Id }}{% endcapture %}
+        {% capture triphtml %}{% for e in trips.Items %}{% capture lg %}{{ e.PublishedContent.lead_guide.Id }}{% endcapture %}{% if lg == me %}
+          <article class="card trip" style="--accent:{{ e.PublishedContent.accent.Value | default: '#37ffb0' }}"><div class="card-media">{% if e.PublishedContent.hero_image.Value %}<img loading="lazy" src="{{ e.PublishedContent.hero_image.Value | attachment_redirect_url }}" alt="">{% endif %}<span class="pill tag"><span class="dot"></span>{{ e.PublishedContent.region.Value | @region }}</span></div><div class="card-body"><h3><a class="stretch" href="{{ PathBase }}/{{ e.RoutePath }}" style="color:inherit">{{ e.PrimaryField }}</a></h3><p>{{ e.PublishedContent.tagline.Value }}</p></div></article>{% endif %}{% endfor %}{% endcapture %}
+        {% assign tt = triphtml | strip %}
+        {% if tt != "" %}<h2 class="reveal" style="margin-top:2em">Expeditions {{ Target.PrimaryField | split: " " | first }} leads</h2><div class="trip-grid" style="margin-top:28px">{{ triphtml }}</div>{% endif %}
+
+        {% assign notes = get_content_items(ContentType="posts", OrderBy="published_on desc", PageSize=50) %}
+        {% capture notehtml %}{% for n in notes.Items %}{% capture au %}{{ n.PublishedContent.author.Id }}{% endcapture %}{% if au == me %}
+          <a class="card cal-item" style="grid-template-columns:1fr;color:inherit;--accent:{{ n.PublishedContent.palette.Value | default: '#37ffb0' }}" href="{{ PathBase }}/{{ n.RoutePath }}"><div><h3 style="margin:0 0 6px">{{ n.PrimaryField }}</h3><p>{{ n.PublishedContent.deck.Value }}</p></div></a>{% endif %}{% endfor %}{% endcapture %}
+        {% assign nn = notehtml | strip %}
+        {% if nn != "" %}<h2 class="reveal" style="margin-top:2em">Field notes</h2><div class="cal" style="margin-top:28px">{{ notehtml }}</div>{% endif %}
+      </div>
+      <aside class="aside">
+        <div class="panel reveal">
+          <h4>At a glance</h4>
+          <dl class="facts">
+            <div><dt>Years in the field</dt><dd>{{ c.years_experience.Value }}</dd></div>
+            <div><dt>Home region</dt><dd>{{ c.base_region.Value | @region }}</dd></div>
+            <div><dt>Lead guide</dt><dd>{% if c.is_lead_guide.Value %}Yes{% else %}No{% endif %}</dd></div>
+            <div><dt>Accent</dt><dd><span class="swatch" style="background:{{ c.accent.Value }}"></span>{{ c.accent.Value }}</dd></div>
+          </dl>
+        </div>
+        <div class="panel reveal"><h4>Specialties</h4><div class="chips">{% for s in c.specialties.Value %}<span class="pill">{{ s | @skill }}</span>{% endfor %}</div></div>
+        <div class="panel reveal"><h4>Speaks</h4><div class="chips">{% for l in c.languages.Value %}<span class="pill">{{ l | @language }}</span>{% endfor %}</div></div>
+        {% if c.links.Value.size > 0 %}<div class="panel reveal"><h4>Elsewhere</h4><dl class="facts">{% for l in c.links.Value %}<div><dt>{{ l.platform | capitalize }}</dt><dd>{{ l.handle }}</dd></div>{% endfor %}</dl></div>{% endif %}
+      </aside>
+    </div>
+  </div>
+</section>

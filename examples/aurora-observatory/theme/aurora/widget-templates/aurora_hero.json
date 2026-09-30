@@ -1,0 +1,23 @@
+{
+  "label": "Aurora hero",
+  "fields": [
+    {"developerName": "eyebrow", "label": "Eyebrow pill", "fieldType": "single_line_text"},
+    {"developerName": "headline", "label": "Headline", "fieldType": "single_line_text", "isRequired": true},
+    {"developerName": "highlight", "label": "Gradient words", "fieldType": "single_line_text", "description": "Shown after the headline in animated aurora colours."},
+    {"developerName": "tail", "label": "Headline ending", "fieldType": "single_line_text"},
+    {"developerName": "subheadline", "label": "Subheadline", "fieldType": "long_text"},
+    {"developerName": "primaryText", "label": "Primary button text", "fieldType": "single_line_text"},
+    {"developerName": "primaryUrl", "label": "Primary button link", "fieldType": "single_line_text"},
+    {"developerName": "secondaryText", "label": "Secondary button text", "fieldType": "single_line_text"},
+    {"developerName": "secondaryUrl", "label": "Secondary button link", "fieldType": "single_line_text"},
+    {"developerName": "variant", "label": "Palette", "fieldType": "dropdown", "defaultValue": "aurora", "choices": [{"developerName": "aurora", "label": "Aurora green"}, {"developerName": "violet", "label": "Violet storm"}, {"developerName": "ember", "label": "Ember solar"}]},
+    {"developerName": "align", "label": "Alignment", "fieldType": "radio", "defaultValue": "left", "choices": [{"developerName": "left", "label": "Left"}, {"developerName": "center", "label": "Centre"}]},
+    {"developerName": "minHeight", "label": "Minimum height (vh)", "fieldType": "number", "defaultValue": 92},
+    {"developerName": "backgroundImage", "label": "Background photo", "fieldType": "image"},
+    {"developerName": "showScrollCue", "label": "Show scroll cue", "fieldType": "checkbox", "defaultValue": true},
+    {"developerName": "stats", "label": "Hero stats", "fieldType": "repeater", "subFields": [
+      {"developerName": "value", "label": "Value", "fieldType": "single_line_text", "isRequired": true},
+      {"developerName": "label", "label": "Label", "fieldType": "single_line_text"}
+    ]}
+  ]
+}

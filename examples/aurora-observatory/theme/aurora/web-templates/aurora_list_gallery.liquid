@@ -1,0 +1,24 @@
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} frames from our stations and expeditions</div>
+    <h1>Aurora <em class="grad-text">gallery</em></h1>
+    <p class="lede">Every exposure, ISO and Kp reading is recorded with the frame. Hover a tile for the story, open it for the settings.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="filters reveal" data-filters="#photos" data-key="cat">@@chips:location@@</div>
+    <div class="mosaic" id="photos">
+      {% for p in Target.Items %}
+        {% assign c = p.PublishedContent %}
+        <a class="tile reveal" data-filter-item data-cat="{{ c.location.Value }}" style="--i:{{ forloop.index0 | modulo: 6 }};--accent:{{ c.dominant_color.Value | default: '#37ffb0' }}" href="{{ PathBase }}/{{ p.RoutePath }}">
+          {% if c.kp_at_capture.Value %}<span class="pill kp"><span class="dot"></span>Kp {{ c.kp_at_capture.Value }}</span>{% endif %}
+          <img loading="lazy" src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ p.PrimaryField | escape }}">
+          <div class="cap"><b>{{ p.PrimaryField }}</b><span>{{ c.location.Value | @region }} &middot; {{ c.exposure_seconds.Value }}s &middot; ISO {{ c.iso.Value }}</span></div>
+        </a>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

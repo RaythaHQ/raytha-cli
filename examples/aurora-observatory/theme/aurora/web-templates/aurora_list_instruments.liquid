@@ -1,0 +1,27 @@
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} instruments, all watching the same sky</div>
+    <h1>The station's <em class="grad-text">instruments</em></h1>
+    <p class="lede">A magnetometer that feels the earth's field twitch, a camera that sees the whole dome, a laser that pokes the upper atmosphere. Guests can tour most of them.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="filters reveal" data-filters="#inst" data-key="cat">@@chips:kind@@</div>
+    <div class="inst-grid" id="inst">
+      {% for i in Target.Items %}
+        {% assign c = i.PublishedContent %}
+        <article class="card inst reveal" data-filter-item data-cat="{{ c.kind.Value }}" style="--i:{{ forloop.index0 | modulo: 6 }};--accent:{{ c.glow.Value | default: '#37ffb0' }}">
+          <div class="card-media">{% if c.photo.Value %}<img loading="lazy" src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ i.PrimaryField | escape }}">{% endif %}</div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span class="pill">{{ c.kind.Value | @kind }}</span><span class="status {{ c.status.Value }}"><i></i>{{ c.status.Value | @status }}</span></div>
+            <h3><a class="stretch" href="{{ PathBase }}/{{ i.RoutePath }}" style="color:inherit">{{ i.PrimaryField }}</a></h3>
+            <dl class="specs">{% for s in c.specs.Value %}{% if s.notable %}<div class="hl"><dt>{{ s.label }}</dt><dd>{{ s.value }}</dd></div>{% endif %}{% endfor %}</dl>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

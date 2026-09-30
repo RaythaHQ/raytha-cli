@@ -1,0 +1,13 @@
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="padding-top:40px">
+  <div class="container">
+    <div class="cta reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow" style="justify-content:center">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}{% if widget.settings.highlight %} <em class="grad-text">{{ widget.settings.highlight }}</em>{% endif %}</h2>
+      {% if widget.settings.body %}<p class="lede">{{ widget.settings.body }}</p>{% endif %}
+      <div class="hero-actions">
+        {% if widget.settings.primaryText %}<a class="btn btn-primary" href="{{ widget.settings.primaryUrl }}">{{ widget.settings.primaryText }} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>{% endif %}
+        {% if widget.settings.secondaryText %}<a class="btn btn-ghost" href="{{ widget.settings.secondaryUrl }}">{{ widget.settings.secondaryText }}</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>

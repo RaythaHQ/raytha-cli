@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#04060d">
+  <title>{% if Target.PrimaryField %}{{ Target.PrimaryField | escape }} &middot; {{ CurrentOrganization.OrganizationName }}{% elsif Target.Label %}{{ Target.Label | escape }} &middot; {{ CurrentOrganization.OrganizationName }}{% else %}{{ CurrentOrganization.OrganizationName }} &mdash; Chase the northern lights with people who forecast them{% endif %}</title>
+  <meta name="description" content="Guided aurora expeditions, a working dark-sky observatory and a live forecast desk. Aurora Observatory, arctic Norway.">
+  <link rel="icon" type="image/svg+xml" href="{{ "@@media:favicon.svg@@" | attachment_public_url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ "@@media:aurora.css@@" | attachment_public_url }}">
+</head>
+<body>
+  <div class="sky" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="{{ PathBase }}/" aria-label="{{ CurrentOrganization.OrganizationName }} home">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#37ffb0"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><path d="M6 46c8-18 14-28 23-28s9 15 15 15 9-9 14-16v29H6z" fill="url(#lg)"/><path d="M11 39c6-13 12-20 19-20 9 0 9 12 15 12 4 0 7-5 9-9" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="12" r="2.4" fill="#fff"/></svg>
+        <span>Aurora Observatory<small>Skjelvik &middot; 69.6&deg;N</small></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      {% assign menu = get_main_menu() %}
+      {% assign seg = Target.RoutePath | split: "/" | first %}
+      <ul class="nav-links">
+        {% for item in menu.MenuItems %}
+          {% assign u = item.Url | append: "/" %}
+          {% capture needle %}/{{ seg }}/{% endcapture %}
+          <li><a href="{{ item.Url }}"{% if item.OpenInNewTab %} target="_blank" rel="noopener"{% endif %} class="{% if seg != blank and u contains needle %}active{% endif %} {{ item.CssClassName }}">{{ item.Label }}</a></li>
+        {% endfor %}
+        <li class="nav-cta"><a class="btn btn-primary btn-sm" href="{{ PathBase }}/expeditions">Book a night sky</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main>{% renderbody %}</main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="about">
+          <a class="brand" href="{{ PathBase }}/"><span>Aurora Observatory</span></a>
+          <p style="margin-top:18px">A working dark-sky station and expedition outfitter above the arctic circle. We forecast the lights, then take you to stand under them.</p>
+          <div class="pill live" style="margin-top:8px"><span class="dot"></span> Forecast desk staffed tonight</div>
+        </div>
+        {% assign foot = get_menu("footer") %}
+        <div>
+          <h5>Explore</h5>
+          <ul>
+            {% for item in foot.MenuItems %}<li><a href="{{ item.Url }}">{{ item.Label }}</a></li>{% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h5>Latest notes</h5>
+          {% assign latest = get_content_items(ContentType="posts", OrderBy="published_on desc", PageSize=3) %}
+          <ul>
+            {% for n in latest.Items %}<li><a href="{{ PathBase }}/{{ n.RoutePath }}">{{ n.PrimaryField }}</a></li>{% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h5>Station</h5>
+          <ul>
+            <li>Skjelvik Dark-Sky Station</li>
+            <li>69.6&deg; N, 19.0&deg; E</li>
+            <li><a href="mailto:watch@aurora-observatory.example">watch@aurora-observatory.example</a></li>
+            {% if CurrentUser.IsAdmin %}<li><a href="{{ PathBase }}/raytha">Admin</a></li>{% endif %}
+          </ul>
+        </div>
+      </div>
+      <div class="mark" aria-hidden="true">AURORA</div>
+      <div class="footer-bottom"><span>&copy; 2026 {{ CurrentOrganization.OrganizationName }}</span><span>Built with Raytha, entirely through the raytha CLI</span></div>
+    </div>
+  </footer>
+  <script src="{{ "@@media:aurora.js@@" | attachment_public_url }}" defer></script>
+</body>
+</html>

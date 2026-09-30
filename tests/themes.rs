@@ -253,11 +253,7 @@ fn write_theme(dir: &std::path::Path) {
     )
     .unwrap();
     // The child sorts before its parent alphabetically, so ordering must come from `parent`.
-    fs::write(
-        dir.join("web-templates/a_page.liquid"),
-        "{% layout 'layout' %}<main>hi</main>",
-    )
-    .unwrap();
+    fs::write(dir.join("web-templates/a_page.liquid"), "<main>hi</main>").unwrap();
     fs::write(
         dir.join("web-templates/a_page.json"),
         r#"{"label":"A page","parent":"layout"}"#,
@@ -373,7 +369,7 @@ async fn mock_existing_theme_with(
     h.ok(
         "GET",
         "/webtemplates/theme/mine/template/a_page",
-        json!({"id": ID, "label": "A page", "content": "{% layout 'layout' %}<main>hi</main>",
+        json!({"id": ID, "label": "A page", "content": "<main>hi</main>",
                "isBaseLayout": false, "parentTemplate": {"developerName": "layout"},
                "allowAccessForNewContentTypes": false, "templateAccessToModelDefinitions": {}}),
     )

@@ -1,0 +1,33 @@
+{% assign cols = widget.settings.columns | default: "3" %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="container">
+    <div class="section-head{% if widget.settings.centered %} center{% endif %} reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="feature-grid" style="--cols:{{ cols }}">
+      {% for f in widget.settings.items %}
+      <article class="card feature reveal" style="--i:{{ forloop.index0 }};--accent:{{ f.color | default: '#37ffb0' }}">
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          {% case f.icon %}
+            {% when "telescope" %}<path d="M10.5 3.5l9 4-2 4.5-9-4z"/><path d="M8.5 8l-4 9"/><path d="M12 13l-2 8M12 13l4 8"/>
+            {% when "compass" %}<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>
+            {% when "flame" %}<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-9z"/>
+            {% when "snowflake" %}<path d="M12 2v20M4 7l16 10M20 7L4 17M9 4l3 2 3-2M9 20l3-2 3 2"/>
+            {% when "camera" %}<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>
+            {% when "radar" %}<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6-6"/>
+            {% when "moon" %}<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>
+            {% when "route" %}<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/>
+            {% else %}<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>
+          {% endcase %}
+          </svg>
+        </div>
+        <h3>{{ f.title }}</h3>
+        <p>{{ f.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

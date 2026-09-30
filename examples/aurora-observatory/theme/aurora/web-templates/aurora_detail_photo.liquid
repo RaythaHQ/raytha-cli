@@ -1,0 +1,39 @@
+{% assign c = Target.PublishedContent %}
+{% assign who = c.photographer %}
+<section class="page-hero" style="--accent:{{ c.dominant_color.Value | default: '#37ffb0' }};padding-bottom:30px">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/gallery">Gallery</a><span>{{ Target.PrimaryField }}</span></nav>
+    <div class="chips" style="margin-bottom:22px"><span class="pill live"><span class="dot"></span>{{ c.location.Value | @region }}</span>{% if c.is_hero.Value %}<span class="pill" style="color:#ffd166">&#9733; Hero shot</span>{% endif %}<span class="pill">{{ c.conditions.Value | @condition }}</span></div>
+    <h1 style="font-size:clamp(2.2rem,4.6vw,4rem)">{{ Target.PrimaryField }}</h1>
+    <p class="lede">{{ c.caption.Value }}</p>
+  </div>
+</section>
+<section class="section" style="padding-top:10px">
+  <div class="container">
+    <div class="lightbox-photo reveal">{% if c.photo.Value %}<img src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ Target.PrimaryField | escape }}">{% endif %}</div>
+    <div class="row" style="margin-top:34px;grid-template-columns:repeat(12,1fr)">
+      <div class="col-md-7"><div class="prose reveal">{{ c.content.Value }}</div></div>
+      <div class="col-md-5">
+        <div class="panel reveal">
+          <h4>Capture details</h4>
+          <dl class="facts">
+            <div><dt>Captured</dt><dd>{{ c.captured_on.Value | date: "%B %e, %Y" }}</dd></div>
+            <div><dt>Exposure</dt><dd>{{ c.exposure_seconds.Value }} s</dd></div>
+            <div><dt>ISO</dt><dd>{{ c.iso.Value }}</dd></div>
+            <div><dt>Lens</dt><dd>{{ c.lens.Value }}</dd></div>
+            <div><dt>Kp at capture</dt><dd style="color:var(--accent)">{{ c.kp_at_capture.Value }}</dd></div>
+            <div><dt>Dominant colour</dt><dd><span class="swatch" style="background:{{ c.dominant_color.Value }}"></span>{{ c.dominant_color.Value }}</dd></div>
+          </dl>
+          {% if who %}<a class="mini-person" style="margin-top:22px;color:inherit;--accent:{{ who.PublishedContent.accent.Value }}" href="{{ PathBase }}/{{ who.RoutePath }}">{% if who.PublishedContent.portrait.Value %}<img src="{{ who.PublishedContent.portrait.Value | attachment_redirect_url }}" alt="">{% endif %}<span><b>{{ who.PrimaryField }}</b><small>Photographer</small></span></a>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% assign more = get_content_items(ContentType="photographs", OrderBy="captured_on desc", PageSize=8) %}
+<section class="section" style="padding-top:0"><div class="container">
+  <h2>More from the archive</h2>
+  <div class="strip" style="margin-top:26px">
+    {% for p in more.Items %}{% if p.RoutePath != Target.RoutePath %}<a href="{{ PathBase }}/{{ p.RoutePath }}" style="display:block"><figure><img loading="lazy" src="{{ p.PublishedContent.photo.Value | attachment_redirect_url }}" alt="{{ p.PrimaryField | escape }}"><figcaption>{{ p.PrimaryField }}</figcaption></figure></a>{% endif %}{% endfor %}
+  </div>
+</div></section>

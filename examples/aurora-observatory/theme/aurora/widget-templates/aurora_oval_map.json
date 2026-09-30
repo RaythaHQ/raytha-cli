@@ -1,0 +1,16 @@
+{
+  "label": "Auroral oval map",
+  "fields": [
+    {"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+    {"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+    {"developerName": "body", "label": "Body", "fieldType": "long_text"},
+    {"developerName": "markers", "label": "Stations", "fieldType": "repeater", "subFields": [
+      {"developerName": "name", "label": "Name", "fieldType": "single_line_text", "isRequired": true},
+      {"developerName": "detail", "label": "Detail", "fieldType": "single_line_text"},
+      {"developerName": "x", "label": "X position (%)", "fieldType": "number"},
+      {"developerName": "y", "label": "Y position (%)", "fieldType": "number"},
+      {"developerName": "color", "label": "Colour", "fieldType": "color"},
+      {"developerName": "url", "label": "Link", "fieldType": "single_line_text"}
+    ]}
+  ]
+}

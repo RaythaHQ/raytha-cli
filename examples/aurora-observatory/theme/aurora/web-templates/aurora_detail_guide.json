@@ -1,0 +1,7 @@
+{
+  "label": "Aurora detail: guide",
+  "isBaseLayout": false,
+  "parent": "aurora_base_layout",
+  "allowAccessForNewContentTypes": false,
+  "contentTypes": ["guides"]
+}

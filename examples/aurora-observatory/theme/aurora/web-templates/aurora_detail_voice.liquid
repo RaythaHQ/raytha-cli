@@ -1,0 +1,13 @@
+{% assign c = Target.PublishedContent %}
+<section class="page-hero" style="--accent:{{ c.tint.Value | default: '#37ffb0' }}">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/voices">Voices</a><span>{{ Target.PrimaryField }}</span></nav>
+    <figure class="big-quote" style="margin:40px auto 0">
+      <blockquote>{{ c.quote.Value }}</blockquote>
+      <figcaption class="who">{% if c.avatar.Value %}<img src="{{ c.avatar.Value | attachment_redirect_url }}" alt="">{% endif %}<div><b>{{ Target.PrimaryField }}</b><small>{{ c.hometown.Value }}{% if c.verified.Value %} &middot; verified traveller{% endif %}</small></div></figcaption>
+    </figure>
+  </div>
+</section>
+<section class="section" style="padding-top:0"><div class="container narrow"><div class="prose">{{ c.content.Value }}</div>
+  {% if c.travelled_on %}<div class="panel" style="margin-top:34px"><h4>Travelled on</h4><a href="{{ PathBase }}/{{ c.travelled_on.RoutePath }}" style="font:600 1.3rem var(--display);color:#fff">{{ c.travelled_on.PrimaryField }}</a></div>{% endif %}
+</div></section>

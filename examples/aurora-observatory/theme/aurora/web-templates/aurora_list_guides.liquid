@@ -1,0 +1,26 @@
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} people, 130+ combined years above the arctic circle</div>
+    <h1>The people <em class="grad-text">under the lights</em></h1>
+    <p class="lede">Forecasters, sled-dog handlers, medics, storytellers and engineers. Every expedition is led by someone on this page, and most of them will cook your dinner.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="filters reveal" data-filters="#team" data-key="skill">@@chips:skill@@</div>
+    <div class="team-grid" id="team">
+      {% for g in Target.Items %}
+        {% assign c = g.PublishedContent %}
+        <article class="card person reveal" data-filter-item data-skill="{{ c.specialties.Value | join: ' ' }}" style="--i:{{ forloop.index0 | modulo: 6 }};--accent:{{ c.accent.Value | default: '#37ffb0' }}">
+          <div class="ph">{% if c.portrait.Value %}<img loading="lazy" src="{{ c.portrait.Value | attachment_redirect_url }}" alt="{{ g.PrimaryField | escape }}">{% endif %}</div>
+          <h3><a class="stretch" href="{{ PathBase }}/{{ g.RoutePath }}" style="color:inherit">{{ g.PrimaryField }}</a></h3>
+          <div class="role">{{ c.role.Value }}</div>
+          <p>&ldquo;{{ c.quote.Value | truncate: 100 }}&rdquo;</p>
+          <div class="chips" style="justify-content:center;margin-top:14px">{% for s in c.specialties.Value limit: 2 %}<span class="pill">{{ s | @skill }}</span>{% endfor %}</div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

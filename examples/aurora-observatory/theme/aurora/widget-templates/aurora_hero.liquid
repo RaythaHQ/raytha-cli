@@ -1,0 +1,27 @@
+{% assign variant = widget.settings.variant | default: "aurora" %}
+<section class="hero{% if widget.settings.backgroundImage %} has-photo{% endif %}{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}
+  style="--min-h:{{ widget.settings.minHeight | default: 92 }}vh;{% if variant == 'ember' %}--g1:#ffd166;--g2:#ff8a65;--g3:#ff5c8a;--g4:#b388ff;--accent:#ffd166;{% elsif variant == 'violet' %}--g1:#b388ff;--g2:#40c4ff;--g3:#7c4dff;--g4:#ff80ab;--accent:#b388ff;{% endif %}">
+  {% if widget.settings.backgroundImage %}<div class="photo" style="background-image:url('{{ widget.settings.backgroundImage }}')"></div>{% endif %}
+  <div class="curtains" aria-hidden="true"><span class="curtain c1"></span><span class="curtain c2"></span><span class="curtain c3"></span></div>
+  <svg class="ridge" viewBox="0 0 1440 260" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 260V160l80-46 64 34 96-88 88 62 76-34 116 96 96-76 128 52 88-66 108 74 84-44 132 86 124-64V260z" fill="#070c19" opacity=".85"/>
+    <path d="M0 260V204l96-40 88 34 92-58 96 64 104-48 120 66 92-52 120 50 96-58 104 60 100-30 132 62V260z" fill="#04060d"/>
+  </svg>
+  <div class="container">
+    <div class="hero-inner"{% if widget.settings.align == 'center' %} style="margin-inline:auto;text-align:center"{% endif %}>
+      {% if widget.settings.eyebrow %}<div class="pill live reveal" style="margin-bottom:28px"><span class="dot"></span>{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h1 class="reveal" style="--i:1">{{ widget.settings.headline }}{% if widget.settings.highlight %} <em class="grad-text">{{ widget.settings.highlight }}</em>{% endif %}{% if widget.settings.tail %} {{ widget.settings.tail }}{% endif %}</h1>
+      {% if widget.settings.subheadline %}<p class="lede reveal" style="--i:2{% if widget.settings.align == 'center' %};margin-inline:auto{% endif %}">{{ widget.settings.subheadline }}</p>{% endif %}
+      <div class="hero-actions reveal" style="--i:3{% if widget.settings.align == 'center' %};justify-content:center{% endif %}">
+        {% if widget.settings.primaryText %}<a class="btn btn-primary" href="{{ widget.settings.primaryUrl }}">{{ widget.settings.primaryText }} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>{% endif %}
+        {% if widget.settings.secondaryText %}<a class="btn btn-ghost" href="{{ widget.settings.secondaryUrl }}">{{ widget.settings.secondaryText }}</a>{% endif %}
+      </div>
+      {% if widget.settings.stats.size > 0 %}
+      <div class="hero-stats reveal" style="--i:4{% if widget.settings.align == 'center' %};justify-content:center{% endif %}">
+        {% for s in widget.settings.stats %}<div><b>{{ s.value }}</b><span>{{ s.label }}</span></div>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% if widget.settings.showScrollCue %}<span class="scroll-cue" aria-hidden="true"></span>{% endif %}
+</section>

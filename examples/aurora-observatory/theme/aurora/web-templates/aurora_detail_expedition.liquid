@@ -1,0 +1,87 @@
+{% assign c = Target.PublishedContent %}
+{% assign guide = c.lead_guide %}
+{% assign odds = c.aurora_odds.Value | default: 0 %}
+<section class="page-hero" style="--accent:{{ c.accent.Value | default: '#37ffb0' }}">
+  {% if c.hero_image.Value %}<div class="bg" style="background-image:url('{{ c.hero_image.Value | attachment_redirect_url }}')"></div>{% endif %}
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/expeditions">Expeditions</a><span>{{ Target.PrimaryField | split: ":" | first }}</span></nav>
+    <div class="chips" style="margin-bottom:26px"><span class="pill live"><span class="dot"></span>{{ c.region.Value | @region }}</span><span class="pill">{{ c.difficulty.Value | @difficulty }}</span>{% if c.is_featured.Value %}<span class="pill" style="color:#ffd166">&#9733; Featured</span>{% endif %}</div>
+    <h1>{{ Target.PrimaryField }}</h1>
+    <p class="lede">{{ c.tagline.Value }}</p>
+    <div class="hero-actions"><a class="btn btn-primary" href="mailto:watch@aurora-observatory.example?subject=Booking: {{ Target.PrimaryField | escape }}">Reserve a place <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-ghost" href="#itinerary">See the itinerary</a></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:30px">
+  <div class="container">
+    <div class="detail">
+      <div>
+        <p class="lede reveal" style="font-size:1.35rem;color:#fff">{{ c.summary.Value }}</p>
+        <div class="prose reveal">{{ c.content.Value }}</div>
+
+        {% if c.itinerary.Value.size > 0 %}
+        <h2 id="itinerary" style="margin-top:2.2em" class="reveal">Day by day</h2>
+        <div class="timeline" style="margin-top:36px">
+          {% for d in c.itinerary.Value %}
+          <div class="tl-item reveal">
+            <time>{{ d.day }}{% if d.aurora_night %} &middot; prime aurora night{% endif %}</time>
+            <h3>{{ d.title }}</h3>
+            <p>{{ d.details }}</p>
+            <div class="day-meta">
+              {% if d.lodging %}<span class="pill">{{ d.lodging | @lodging }}</span>{% endif %}
+              {% if d.distance_km > 0 %}<span class="pill">{{ d.distance_km }} km</span>{% endif %}
+              {% if d.aurora_night %}<span class="pill" style="color:var(--accent)"><span class="dot"></span>Watch tonight</span>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if c.moments.Value.size > 0 %}
+        <h2 style="margin-top:2.2em" class="reveal">Moments from the route</h2>
+        <div class="strip reveal" style="margin-top:28px">
+          {% for m in c.moments.Value %}<figure><img loading="lazy" src="{{ m.photo | attachment_redirect_url }}" alt="{{ m.caption | escape }}"><figcaption>{{ m.caption }}</figcaption></figure>{% endfor %}
+        </div>
+        {% endif %}
+
+        {% assign evs = get_content_items(ContentType="sky_events", OrderBy="starts_on asc", PageSize=50) %}
+        {% capture me %}{{ Target.Id }}{% endcapture %}
+        {% assign shown = 0 %}
+        {% capture evhtml %}{% for ev in evs.Items %}{% capture be %}{{ ev.PublishedContent.best_expedition.Id }}{% endcapture %}{% if be == me %}{% assign shown = shown | plus: 1 %}
+          <a class="card cal-item" style="--accent:{{ ev.PublishedContent.event_color.Value | default: '#37ffb0' }};color:inherit;grid-template-columns:76px 1fr" href="{{ PathBase }}/{{ ev.RoutePath }}"><div class="cal-date"><b>{{ ev.PublishedContent.starts_on.Value | date: "%e" }}</b><span>{{ ev.PublishedContent.starts_on.Value | date: "%b" }}</span></div><div><h3 style="margin:0 0 4px">{{ ev.PrimaryField }}</h3><p>{{ ev.PublishedContent.event_type.Value | @event_type }}</p></div></a>{% endif %}{% endfor %}{% endcapture %}
+        {% if shown > 0 %}<h2 style="margin-top:2.2em" class="reveal">Sky events this trip is built around</h2><div class="cal" style="margin-top:28px">{{ evhtml }}</div>{% endif %}
+      </div>
+
+      <aside class="aside">
+        <div class="panel reveal">
+          <div class="price-xl">${{ c.price_usd.Value | divided_by: 1000 }},{{ c.price_usd.Value | modulo: 1000 | prepend: "000" | slice: -3, 3 }}<small>per person</small></div>
+          <dl class="facts" style="margin-top:22px">
+            <div><dt>Next departure</dt><dd>{{ c.departure_date.Value | date: "%b %e, %Y" }}</dd></div>
+            <div><dt>Length</dt><dd>{{ c.duration_nights.Value }} nights</dd></div>
+            <div><dt>Group size</dt><dd>up to {{ c.group_size.Value }}</dd></div>
+            <div><dt>Difficulty</dt><dd>{{ c.difficulty.Value | @difficulty }}</dd></div>
+            <div><dt>Best seasons</dt><dd>{% for s in c.seasons.Value %}{{ s | @season }}{% unless forloop.last %}, {% endunless %}{% endfor %}</dd></div>
+            <div><dt>Aurora odds</dt><dd style="color:var(--accent)">{{ odds }}%</dd></div>
+          </dl>
+          <a class="btn btn-primary" style="width:100%;justify-content:center;margin-top:22px" href="mailto:watch@aurora-observatory.example?subject=Booking: {{ Target.PrimaryField | escape }}">Reserve a place</a>
+        </div>
+        {% if guide %}
+        <div class="panel reveal" style="--accent:{{ guide.PublishedContent.accent.Value | default: '#37ffb0' }}">
+          <h4>Your lead guide</h4>
+          <a class="mini-person" href="{{ PathBase }}/{{ guide.RoutePath }}" style="color:inherit">
+            {% if guide.PublishedContent.portrait.Value %}<img src="{{ guide.PublishedContent.portrait.Value | attachment_redirect_url }}" alt="{{ guide.PrimaryField | escape }}">{% endif %}
+            <span><b>{{ guide.PrimaryField }}</b><small>{{ guide.PublishedContent.role.Value }}</small></span>
+          </a>
+          <p style="margin:16px 0 0;color:var(--ink-2);font-size:.93rem;font-style:italic">&ldquo;{{ guide.PublishedContent.quote.Value | truncate: 120 }}&rdquo;</p>
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</section>
+
+{% assign reviews = get_content_items(ContentType="voices", PageSize=50) %}
+{% capture revhtml %}{% for v in reviews.Items %}{% capture te %}{{ v.PublishedContent.travelled_on.Id }}{% endcapture %}{% if te == me %}
+  <figure class="card voice" style="margin:0;width:auto;--accent:{{ v.PublishedContent.tint.Value | default: '#37ffb0' }}"><div class="stars">&#9733;&#9733;&#9733;&#9733;{% if v.PublishedContent.rating.Value == "5" %}&#9733;{% else %}&#9734;{% endif %}</div><blockquote>&ldquo;{{ v.PublishedContent.quote.Value }}&rdquo;</blockquote><figcaption class="who"><img src="{{ v.PublishedContent.avatar.Value | attachment_redirect_url }}" alt=""><div><b>{{ v.PrimaryField }}</b><small>{{ v.PublishedContent.hometown.Value }}</small></div></figcaption></figure>{% endif %}{% endfor %}{% endcapture %}
+{% assign revtrim = revhtml | strip %}
+{% if revtrim != "" %}<section class="section" style="padding-top:0"><div class="container"><h2 class="reveal">What travellers said</h2><div class="trip-grid" style="margin-top:28px">{{ revhtml }}</div></div></section>{% endif %}

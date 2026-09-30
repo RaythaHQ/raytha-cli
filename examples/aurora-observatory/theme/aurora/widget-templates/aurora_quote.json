@@ -1,0 +1,10 @@
+{
+  "label": "Big quote",
+  "fields": [
+    {"developerName": "quote", "label": "Quote", "fieldType": "long_text", "isRequired": true},
+    {"developerName": "author", "label": "Author", "fieldType": "single_line_text"},
+    {"developerName": "role", "label": "Role", "fieldType": "single_line_text"},
+    {"developerName": "avatar", "label": "Portrait", "fieldType": "image"},
+    {"developerName": "accent", "label": "Accent colour", "fieldType": "color", "defaultValue": "#37ffb0"}
+  ]
+}

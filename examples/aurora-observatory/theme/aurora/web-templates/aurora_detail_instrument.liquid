@@ -1,0 +1,25 @@
+{% assign c = Target.PublishedContent %}
+{% assign op = c.operator %}
+<section class="page-hero" style="--accent:{{ c.glow.Value | default: '#37ffb0' }}">
+  {% if c.photo.Value %}<div class="bg" style="background-image:url('{{ c.photo.Value | attachment_redirect_url }}')"></div>{% endif %}
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/instruments">Instruments</a><span>{{ Target.PrimaryField }}</span></nav>
+    <div class="chips" style="margin-bottom:24px"><span class="pill">{{ c.kind.Value | @kind }}</span><span class="pill"><span class="status {{ c.status.Value }}"><i></i>{{ c.status.Value | @status }}</span></span>{% if c.public_data.Value %}<span class="pill">Open data</span>{% endif %}</div>
+    <h1>{{ Target.PrimaryField }}</h1>
+    <p class="lede">Installed {{ c.installed_on.Value | date: "%B %Y" }}{% if c.cadence_seconds.Value > 0 %} &middot; samples every {{ c.cadence_seconds.Value }} s{% endif %}</p>
+  </div>
+</section>
+<section class="section" style="padding-top:30px">
+  <div class="container">
+    <div class="detail">
+      <div><div class="prose reveal">{{ c.content.Value }}</div></div>
+      <aside class="aside">
+        <div class="panel reveal">
+          <h4>Specifications</h4>
+          <dl class="specs">{% for s in c.specs.Value %}<div{% if s.notable %} class="hl"{% endif %}><dt>{{ s.label }}</dt><dd>{{ s.value }}</dd></div>{% endfor %}</dl>
+        </div>
+        {% if op %}<div class="panel reveal" style="--accent:{{ op.PublishedContent.accent.Value | default: '#37ffb0' }}"><h4>Kept honest by</h4><a class="mini-person" style="color:inherit" href="{{ PathBase }}/{{ op.RoutePath }}">{% if op.PublishedContent.portrait.Value %}<img src="{{ op.PublishedContent.portrait.Value | attachment_redirect_url }}" alt="">{% endif %}<span><b>{{ op.PrimaryField }}</b><small>{{ op.PublishedContent.role.Value }}</small></span></a></div>{% endif %}
+      </aside>
+    </div>
+  </div>
+</section>

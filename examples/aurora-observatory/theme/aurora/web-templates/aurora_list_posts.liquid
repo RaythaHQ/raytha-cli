@@ -1,0 +1,34 @@
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} dispatches and essays</div>
+    <h1>Field <em class="grad-text">notes</em></h1>
+    <p class="lede">Long-form writing from the people who stand outside all night: what a Kp 8 feels like, why the aurora is green, and how to keep your batteries alive at minus thirty.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="filters reveal" data-filters="#notes" data-key="cat">@@chips:category@@</div>
+    <div class="trip-grid" id="notes" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">
+      {% for n in Target.Items %}
+        {% assign c = n.PublishedContent %}
+        <article class="card trip reveal" data-filter-item data-cat="{{ c.category.Value }}" style="--i:{{ forloop.index0 | modulo: 6 }};--accent:{{ c.palette.Value | default: '#37ffb0' }}">
+          <div class="card-media">
+            {% if c.featured_image.Value %}<img loading="lazy" src="{{ c.featured_image.Value | attachment_redirect_url }}" alt="{{ n.PrimaryField | escape }}">{% endif %}
+            <span class="pill tag"><span class="dot"></span>{{ c.category.Value | @category }}</span>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;flex:1">
+            <h3><a class="stretch" href="{{ PathBase }}/{{ n.RoutePath }}" style="color:inherit">{{ n.PrimaryField }}</a></h3>
+            <p>{{ c.deck.Value }}</p>
+            <div class="meta">
+              <span>By <b>{{ c.author.PrimaryField }}</b></span>
+              <span>{{ c.published_on.Value | date: "%b %e, %Y" }}</span>
+              <span style="margin-left:auto">{{ c.reading_minutes.Value }} min &middot; {{ c.mood.Value | @mood }}</span>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

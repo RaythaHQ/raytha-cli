@@ -1,0 +1,15 @@
+{
+  "label": "Aurora forecast dial",
+  "fields": [
+    {"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+    {"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+    {"developerName": "body", "label": "Body", "fieldType": "long_text"},
+    {"developerName": "kp", "label": "Kp index (0-9)", "fieldType": "number", "defaultValue": 4},
+    {"developerName": "windSpeed", "label": "Solar wind (km/s)", "fieldType": "number", "defaultValue": 420},
+    {"developerName": "bz", "label": "Bz (nT)", "fieldType": "number", "defaultValue": -3},
+    {"developerName": "cloudCover", "label": "Cloud cover (%)", "fieldType": "number", "defaultValue": 20},
+    {"developerName": "updated", "label": "Last updated", "fieldType": "date"},
+    {"developerName": "ctaText", "label": "Button text", "fieldType": "single_line_text"},
+    {"developerName": "ctaUrl", "label": "Button link", "fieldType": "single_line_text"}
+  ]
+}

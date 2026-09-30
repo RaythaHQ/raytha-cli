@@ -35,8 +35,8 @@ underscores.
 }
 ```
 
-- `parent`: the base layout this template extends. The template itself starts with
-  `{% layout 'raytha_html_base_layout' %}`. Push creates parents before children.
+- `parent`: the base layout this template extends. The template source does not repeat it: a
+  `{% layout %}` tag fails at render time ("Unknown tag 'layout'"). Push creates parents before children.
 - `isBaseLayout`: true for layouts. A base layout must contain `{% renderbody %}`; the CLI infers
   this on create when the tag is present.
 - `contentTypes` / `allowAccessForNewContentTypes`: which content types may use the template.
@@ -92,3 +92,15 @@ raytha theme activate my_theme
   in templates. See `raytha guide media`.
 - Template errors show up when a page renders, not when you push. After pushing, fetch a page
   that uses the template and look at the HTML.
+
+## Built-in templates and views (read before `theme create`)
+
+- Every theme must contain Raytha's built-in templates (`raytha_html_*`: error pages, login, list/detail
+  fallbacks, page layouts). `theme create` adds them; push a pulled copy of the default theme's built-ins with
+  your overrides on top (re-parent them with the sidecar `parent`) rather than deleting them.
+- Views and content items bind to templates **per theme**. Views created while another theme was active have no
+  binding in the new theme, and `content-type views settings` answers 500 "Sequence contains no elements".
+  Fix: `views create` a replacement (it binds to the active theme's built-in list template), `views delete`
+  the old one, then run `views settings`. Do this before you run `content create --template ...`, and delete
+  stock sample items that have no template in the new theme: one such item makes its whole list view 500.
+- After every push, request each public route and read the status. Template errors return empty bodies.

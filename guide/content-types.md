@@ -29,7 +29,7 @@ raytha content-type fields delete posts summary --yes
 ```
 
 Types: `single_line_text`, `long_text`, `wysiwyg`, `number`, `date`, `checkbox`, `dropdown`, `radio`,
-`multiple_select`, `attachment`, `one_to_one_relationship`, `repeater`, `color`, `id`.
+`multiple_select`, `attachment`, `one_to_one_relationship`, `repeater`, `color`.
 Dropdown, radio and multiple_select need `--choices "A,B"` (labels; developer names are derived) or
 `--choices-json '[{"label":"A","developerName":"a"}]'`. Repeaters take `--sub-fields` JSON.
 
@@ -99,7 +99,7 @@ raytha content-type views set-home posts <view-id>
 for none); `views sort-reorder` takes `developerName` and `newFieldOrder`. Setting `--published` and `--route-path` makes `/blog` render the list. Conditions JSON:
 
 ```json
-[{"id":"1","type":"condition","groupOperator":"AND","field":"category","conditionOperator":"eq","value":"News"}]
+[{"id":"1","type":"filter_condition","groupOperator":"AND","field":"category","conditionOperator":"eq","value":"News"}]
 ```
 
 ## Making content visible: the checklist
@@ -118,3 +118,25 @@ for none); `views sort-reorder` takes `developerName` and `newFieldOrder`. Setti
 - Use an attachment field for images; render with `attachment_public_url` in templates.
 - Use a `category` dropdown or a relationship instead of free-text tags you would need to parse.
 - Seed a few real-looking items so the list and detail templates can be checked end to end.
+
+## Field value formats (what `--data` takes)
+
+| field type | value |
+|------------|-------|
+| `single_line_text`, `long_text`, `wysiwyg`, `color` | string (`color` is `#rrggbb`) |
+| `number` | number |
+| `date` | `"2026-01-14"` |
+| `checkbox` | `true` / `false` |
+| `dropdown`, `radio` | one choice **developer name** (`"arctic_norway"`). Radio values that look like numbers are still strings (`"5"`) |
+| `multiple_select` | array of choice developer names |
+| `attachment` | the media item's **object key** from `raytha media upload` (`"<id>_<file>.jpg"`) |
+| `one_to_one_relationship` | the related item's **id** |
+| `repeater` | array of objects keyed by sub-field developer name; sub-fields may be single_line_text, long_text, wysiwyg, number, checkbox, date, dropdown, radio, color, attachment (no nesting, no relationships) |
+
+In templates, dropdown and radio `.Text` also gives the developer name, not the label. Map names to labels
+yourself (`{{ x | replace: 'arctic_norway', 'Arctic Norway' }}`), or generate the chain at build time.
+A relationship exposes the related item (`.Id`, `.PrimaryField`, `.RoutePath`, `.PublishedContent`); compare ids
+through `{% capture %}` to get string equality.
+
+Filter `type` is `filter_condition` (or `filter_condition_group`). Conditions on `multiple_select` and
+relationship fields are not reliable; filter those client-side or use a dropdown.

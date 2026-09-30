@@ -1,0 +1,28 @@
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} things worth staying up for</div>
+    <h1>The sky <em class="grad-text">calendar</em></h1>
+    <p class="lede">Meteor showers, comets, solstice vigils and the storm windows our forecast desk is watching. The visibility bars are our honest odds, not a sales pitch.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="filters reveal" data-filters="#events" data-key="cat">@@chips:event_type@@</div>
+    <div class="cal" id="events">
+      {% for ev in Target.Items %}
+        {% assign c = ev.PublishedContent %}
+        {% assign score = c.visibility.Value | default: 5 %}
+        <article class="card cal-item reveal" data-filter-item data-cat="{{ c.event_type.Value }}" style="--i:{{ forloop.index0 | modulo: 6 }};--accent:{{ c.event_color.Value | default: '#37ffb0' }}">
+          <div class="cal-date"><b>{{ c.starts_on.Value | date: "%e" }}</b><span>{{ c.starts_on.Value | date: "%b %Y" }}</span></div>
+          <div>
+            <h3><a class="stretch" href="{{ PathBase }}/{{ ev.RoutePath }}" style="color:inherit">{{ ev.PrimaryField }}</a></h3>
+            <p>{{ c.event_type.Value | @event_type }}{% if c.expected_kp.Value %} &middot; expected Kp {{ c.expected_kp.Value }}{% endif %}{% if c.ends_on.Value and c.ends_on.Value != c.starts_on.Value %} &middot; through {{ c.ends_on.Value | date: "%b %e" }}{% endif %}{% if c.livestream.Value %} &middot; live-streamed{% endif %}</p>
+          </div>
+          <div class="meter" title="Visibility {{ score }}/10">{% for i in (1..10) %}<i class="{% if i <= score %}on{% endif %}" style="height:{{ i | times: 3 | plus: 6 }}px"></i>{% endfor %}</div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

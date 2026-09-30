@@ -1,0 +1,18 @@
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="container narrow">
+    <div class="section-head reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="timeline">
+      {% for t in widget.settings.items %}
+      <div class="tl-item reveal" style="--accent:{{ t.color | default: '#37ffb0' }};--i:{{ forloop.index0 }}">
+        <time>{{ t.when }}</time>
+        <h3>{{ t.title }}</h3>
+        <p>{{ t.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

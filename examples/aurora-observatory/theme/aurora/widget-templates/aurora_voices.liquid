@@ -1,0 +1,32 @@
+{% assign limit = widget.settings.limit | default: 8 %}
+{% assign list = get_content_items(ContentType="voices", OrderBy="CreationTime asc", PageSize=limit) %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="overflow:hidden">
+  <div class="container">
+    <div class="section-head center reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+  </div>
+  <div class="wall">
+    {% for row in (1..2) %}
+    <div class="wall-row{% if row == 2 %} rev{% endif %}" style="--dur:{{ widget.settings.duration | default: 80 }}s">
+      {% for pass in (1..2) %}{% for v in list.Items %}
+        {% assign c = v.PublishedContent %}
+        {% assign odd = forloop.index0 | modulo: 2 %}
+        {% assign want = row | minus: 1 %}
+        {% if odd == want %}
+        <figure class="card voice" style="margin:0;--accent:{{ c.tint.Value | default: '#37ffb0' }}"{% if pass == 2 %} aria-hidden="true"{% endif %}>
+          <div class="stars" aria-label="{{ c.rating.Value }} stars">{% if c.rating.Value == "5" %}&#9733;&#9733;&#9733;&#9733;&#9733;{% else %}&#9733;&#9733;&#9733;&#9733;&#9734;{% endif %}</div>
+          <blockquote>&ldquo;{{ c.quote.Value }}&rdquo;</blockquote>
+          <figcaption class="who">
+            {% if c.avatar.Value %}<img loading="lazy" src="{{ c.avatar.Value | attachment_redirect_url }}" alt="">{% endif %}
+            <div><b>{{ v.PrimaryField }}</b><small>{{ c.hometown.Value }}{% if c.travelled_on.PrimaryField %} &middot; {{ c.travelled_on.PrimaryField | split: ":" | first }}{% endif %}</small></div>
+          </figcaption>
+        </figure>
+        {% endif %}
+      {% endfor %}{% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</section>

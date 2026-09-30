@@ -494,6 +494,16 @@ async fn content_trash_restore_purge_and_route_lookups() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn ids_may_start_with_a_hyphen() {
+    let h = Harness::new().await;
+    h.ok("DELETE", "/contentitems/posts/-ITEMID", json!("-ITEMID"))
+        .await;
+    h.run(&["content", "delete", "posts", "-ITEMID", "--yes"])
+        .await
+        .data();
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn content_type_create_and_field_commands() {
     let h = Harness::new().await;
     h.ok("POST", "/contenttypes", json!("CTID")).await;
@@ -667,7 +677,7 @@ async fn view_commands_keep_current_settings_and_wrap_the_filter() {
     .data();
     h.run(&[
         "content-type", "views", "filter", "posts", "V1", "--conditions",
-        r#"[{"id":"1","type":"condition","groupOperator":"AND","field":"title","conditionOperator":"contains","value":"x"}]"#,
+        r#"[{"id":"1","type":"filter_condition","groupOperator":"AND","field":"title","conditionOperator":"contains","value":"x"}]"#,
     ])
     .await
     .data();

@@ -320,7 +320,29 @@ fn run_widgets(client: &Client, cmd: WidgetsCmd) -> Result<Value> {
 pub fn get(client: &Client, id: &str) -> Result<Value> {
     let mut page = client.get(&["sitepages", id], &[])?;
     expose_settings(&mut page);
+    slim_template(&mut page);
     Ok(page)
+}
+
+/// The API embeds the page's whole web template (and its parent layout) source, tens of kilobytes that
+/// an agent never needs here. Keep the identifying fields; `web-template get` returns the source.
+fn slim_template(page: &mut Value) {
+    let Some(t) = page.get_mut("webTemplate").and_then(Value::as_object_mut) else {
+        return;
+    };
+    let parent = t
+        .get("parentTemplate")
+        .and_then(|p| p.get("developerName"))
+        .cloned();
+    t.retain(|k, _| {
+        matches!(
+            k.as_str(),
+            "id" | "developerName" | "label" | "themeId" | "isBaseLayout"
+        )
+    });
+    if let Some(p) = parent {
+        t.insert("parent".into(), p);
+    }
 }
 
 /// Replaces each widget's `settingsJson` string with a parsed `settings` object, in both

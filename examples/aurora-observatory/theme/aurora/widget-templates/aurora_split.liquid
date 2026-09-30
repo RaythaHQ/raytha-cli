@@ -1,0 +1,14 @@
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="--accent:{{ widget.settings.accent | default: '#37ffb0' }}">
+  <div class="container">
+    <div class="split{% if widget.settings.flip %} flip{% endif %}">
+      <div class="split-media reveal">{% if widget.settings.image %}<img loading="lazy" src="{{ widget.settings.image }}" alt="{{ widget.settings.heading | escape }}">{% endif %}</div>
+      <div class="reveal" style="--i:2">
+        {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+        <h2>{{ widget.settings.heading }}</h2>
+        <div class="lede">{{ widget.settings.body }}</div>
+        {% if widget.settings.bullets.size > 0 %}<ul class="ticks">{% for b in widget.settings.bullets %}<li>{{ b.text }}</li>{% endfor %}</ul>{% endif %}
+        {% if widget.settings.buttonText %}<a class="btn btn-primary" href="{{ widget.settings.buttonUrl }}">{{ widget.settings.buttonText }} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>

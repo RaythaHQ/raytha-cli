@@ -1,0 +1,25 @@
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} travellers who came back changed</div>
+    <h1>In their <em class="grad-text">own words</em></h1>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="trip-grid">
+      {% for v in Target.Items %}
+        {% assign c = v.PublishedContent %}
+        <figure class="card voice reveal" style="margin:0;width:auto;--accent:{{ c.tint.Value | default: '#37ffb0' }};--i:{{ forloop.index0 | modulo: 6 }}">
+          <div class="stars">{% if c.rating.Value == "5" %}&#9733;&#9733;&#9733;&#9733;&#9733;{% else %}&#9733;&#9733;&#9733;&#9733;&#9734;{% endif %}</div>
+          <blockquote>&ldquo;{{ c.quote.Value }}&rdquo;</blockquote>
+          <figcaption class="who">
+            {% if c.avatar.Value %}<img loading="lazy" src="{{ c.avatar.Value | attachment_redirect_url }}" alt="">{% endif %}
+            <div><b>{{ v.PrimaryField }}</b><small>{{ c.hometown.Value }}{% if c.verified.Value %} &middot; verified traveller{% endif %}</small></div>
+          </figcaption>
+        </figure>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

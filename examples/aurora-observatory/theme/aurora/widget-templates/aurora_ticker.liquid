@@ -1,0 +1,6 @@
+{% assign items = widget.settings.items %}
+<div class="ticker{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="--dur:{{ widget.settings.duration | default: 55 }}s" aria-label="Sky news">
+  <div class="ticker-track">
+    {% for pass in (1..2) %}{% for it in items %}<span class="ticker-item"{% if pass == 2 %} aria-hidden="true"{% endif %}><i style="--c:{{ it.color | default: '#37ffb0' }}"></i>{{ it.text }}</span>{% endfor %}{% endfor %}
+  </div>
+</div>

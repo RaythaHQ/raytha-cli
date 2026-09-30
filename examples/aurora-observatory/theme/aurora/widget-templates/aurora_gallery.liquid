@@ -1,0 +1,24 @@
+{% assign limit = widget.settings.limit | default: 9 %}
+{% assign list = get_content_items(ContentType="photographs", Filter=widget.settings.filter, OrderBy="is_hero desc, captured_on desc", PageSize=limit) %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="container">
+    <div class="head-flex section-head reveal" style="max-width:none">
+      <div style="max-width:720px">
+        {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+        <h2 style="margin-bottom:.3em">{{ widget.settings.heading }}</h2>
+        {% if widget.settings.intro %}<p class="lede" style="margin:0">{{ widget.settings.intro }}</p>{% endif %}
+      </div>
+      {% if widget.settings.ctaText %}<a class="btn btn-ghost" href="{{ widget.settings.ctaUrl }}">{{ widget.settings.ctaText }}</a>{% endif %}
+    </div>
+    <div class="mosaic">
+      {% for p in list.Items %}
+        {% assign c = p.PublishedContent %}
+        <a class="tile reveal" style="--i:{{ forloop.index0 }};--accent:{{ c.dominant_color.Value | default: '#37ffb0' }}" href="{{ PathBase }}/{{ p.RoutePath }}">
+          {% if c.kp_at_capture.Value %}<span class="pill kp"><span class="dot" style="background:{{ c.dominant_color.Value }};box-shadow:0 0 10px {{ c.dominant_color.Value }}"></span>Kp {{ c.kp_at_capture.Value }}</span>{% endif %}
+          <img loading="lazy" src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ p.PrimaryField | escape }}">
+          <div class="cap"><b>{{ p.PrimaryField }}</b><span>{{ c.location.Value | @region }} &middot; {{ c.captured_on.Value | date: "%b %Y" }}</span></div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>

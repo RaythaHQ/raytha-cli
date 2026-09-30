@@ -68,6 +68,24 @@ fn read_json_file(path: &Path) -> Result<Value> {
         .map_err(|e| CliError::usage(format!("{} is not valid JSON: {e}", path.display())))
 }
 
+/// True when the source contains a Liquid `{% layout ... %}` tag (not valid in Raytha).
+fn has_layout_tag(src: &str) -> bool {
+    let mut rest = src;
+    while let Some(i) = rest.find("{%") {
+        let after = rest[i + 2..].trim_start_matches(['-', ' ', '\t', '\n', '\r']);
+        if after.starts_with("layout")
+            && after[6..]
+                .chars()
+                .next()
+                .is_none_or(|c| !c.is_alphanumeric() && c != '_')
+        {
+            return true;
+        }
+        rest = &rest[i + 2..];
+    }
+    false
+}
+
 /// `(name, content, sidecar)` for every `*.liquid` file in `dir`, sorted by name.
 fn read_templates(dir: &Path) -> Result<Vec<(String, String, Value)>> {
     let mut out = Vec::new();
@@ -88,6 +106,15 @@ fn read_templates(dir: &Path) -> Result<Vec<(String, String, Value)>> {
             .to_string();
         let content = fs::read_to_string(&path)
             .map_err(|e| CliError::usage(format!("Cannot read {}: {e}", path.display())))?;
+        if has_layout_tag(&content) {
+            return Err(CliError::usage(format!(
+                "{} uses a {{% layout %}} tag, which Raytha rejects at render time (\"Unknown tag 'layout'\").",
+                path.display()
+            ))
+            .with_hint(
+                "Remove the tag and set the parent layout with `\"parent\"` in the sidecar json; the parent outputs the child with {% renderbody %}.",
+            ));
+        }
         let sidecar_path = path.with_extension("json");
         let sidecar = if sidecar_path.exists() {
             read_json_file(&sidecar_path)?
@@ -932,6 +959,15 @@ mod tests {
             spec: wt::Spec::default(),
             parent: parent.map(str::to_string),
         }
+    }
+
+    #[test]
+    fn layout_tag_is_detected() {
+        assert!(has_layout_tag("{% layout 'base' %}<p>x</p>"));
+        assert!(has_layout_tag("<p>x</p>\n{%- layout \"base\" -%}"));
+        assert!(!has_layout_tag("{% renderbody %}"));
+        assert!(!has_layout_tag("{% assign layout_name = 'x' %}"));
+        assert!(!has_layout_tag("plain layout text"));
     }
 
     #[test]

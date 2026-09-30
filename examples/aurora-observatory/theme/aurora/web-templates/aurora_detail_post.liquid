@@ -1,0 +1,41 @@
+{% assign c = Target.PublishedContent %}
+{% assign au = c.author %}
+<section class="page-hero" style="--accent:{{ c.palette.Value | default: '#37ffb0' }}">
+  {% if c.featured_image.Value %}<div class="bg" style="background-image:url('{{ c.featured_image.Value | attachment_redirect_url }}')"></div>{% endif %}
+  <div class="container narrow">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/journal">Field notes</a><span>{{ c.category.Value | @category }}</span></nav>
+    <div class="chips" style="margin-bottom:24px"><span class="pill live"><span class="dot"></span>{{ c.category.Value | @category }}</span><span class="pill">{{ c.mood.Value | @mood }}</span></div>
+    <h1 style="font-size:clamp(2.3rem,5vw,4.2rem)">{{ Target.PrimaryField }}</h1>
+    <p class="lede">{{ c.deck.Value }}</p>
+    <div class="article-meta">
+      {% if au %}<a class="mini-person" href="{{ PathBase }}/{{ au.RoutePath }}" style="color:inherit">{% if au.PublishedContent.portrait.Value %}<img src="{{ au.PublishedContent.portrait.Value | attachment_redirect_url }}" alt="">{% endif %}<span><b>{{ au.PrimaryField }}</b><small>{{ au.PublishedContent.role.Value }}</small></span></a>{% endif %}
+      <span>{{ c.published_on.Value | date: "%B %e, %Y" }}</span><span>{{ c.reading_minutes.Value }} minute read</span>
+    </div>
+  </div>
+</section>
+<article class="section" style="padding-top:30px">
+  <div class="container narrow">
+    <div class="prose reveal">{{ c.content.Value }}</div>
+    {% if c.pull_quote.Value %}<blockquote class="pull reveal">{{ c.pull_quote.Value }}</blockquote>{% endif %}
+    {% if c.tags.Value.size > 0 %}<div class="chips reveal">{% for t in c.tags.Value %}<span class="pill">#{{ t | @tag }}</span>{% endfor %}</div>{% endif %}
+    {% if c.from_expedition %}
+      <div class="panel reveal" style="margin-top:44px;--accent:{{ c.from_expedition.PublishedContent.accent.Value | default: '#37ffb0' }}">
+        <h4>Written on expedition</h4>
+        <a class="mini-person" style="color:inherit" href="{{ PathBase }}/{{ c.from_expedition.RoutePath }}">
+          {% if c.from_expedition.PublishedContent.hero_image.Value %}<img style="border-radius:14px;width:110px;height:72px" src="{{ c.from_expedition.PublishedContent.hero_image.Value | attachment_redirect_url }}" alt="">{% endif %}
+          <span><b style="font-size:1.1rem">{{ c.from_expedition.PrimaryField }}</b><small>{{ c.from_expedition.PublishedContent.tagline.Value }}</small></span>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</article>
+{% assign more = get_content_items(ContentType="posts", OrderBy="published_on desc", PageSize=4) %}
+<section class="section" style="padding-top:0"><div class="container">
+  <div class="head-flex section-head" style="max-width:none"><h2 style="margin:0">Keep reading</h2><a class="btn btn-ghost btn-sm" href="{{ PathBase }}/journal">All field notes</a></div>
+  <div class="trip-grid">
+    {% assign shown = 0 %}
+    {% for n in more.Items %}{% if n.RoutePath != Target.RoutePath and shown < 3 %}{% assign shown = shown | plus: 1 %}
+      <article class="card trip" style="--accent:{{ n.PublishedContent.palette.Value | default: '#37ffb0' }}"><div class="card-media">{% if n.PublishedContent.featured_image.Value %}<img loading="lazy" src="{{ n.PublishedContent.featured_image.Value | attachment_redirect_url }}" alt="">{% endif %}</div><div class="card-body"><h3><a class="stretch" style="color:inherit" href="{{ PathBase }}/{{ n.RoutePath }}">{{ n.PrimaryField }}</a></h3><p>{{ n.PublishedContent.deck.Value }}</p></div></article>
+    {% endif %}{% endfor %}
+  </div>
+</div></section>

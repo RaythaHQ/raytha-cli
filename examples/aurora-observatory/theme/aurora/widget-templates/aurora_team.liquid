@@ -1,0 +1,23 @@
+{% assign limit = widget.settings.limit | default: 8 %}
+{% if widget.settings.leadsOnly %}{% assign flt = "is_lead_guide eq 'true'" %}{% endif %}
+{% assign list = get_content_items(ContentType="guides", Filter=flt, OrderBy="years_experience desc", PageSize=limit) %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="container">
+    <div class="section-head center reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="team-grid">
+      {% for g in list.Items %}
+        {% assign c = g.PublishedContent %}
+        <article class="card person reveal" style="--i:{{ forloop.index0 }};--accent:{{ c.accent.Value | default: '#37ffb0' }}">
+          <div class="ph">{% if c.portrait.Value %}<img loading="lazy" src="{{ c.portrait.Value | attachment_redirect_url }}" alt="{{ g.PrimaryField | escape }}">{% endif %}</div>
+          <h3><a class="stretch" href="{{ PathBase }}/{{ g.RoutePath }}" style="color:inherit">{{ g.PrimaryField }}</a></h3>
+          <div class="role">{{ c.role.Value }}</div>
+          <p>&ldquo;{{ c.quote.Value | truncate: 92 }}&rdquo;</p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

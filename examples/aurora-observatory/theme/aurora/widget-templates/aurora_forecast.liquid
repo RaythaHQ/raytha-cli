@@ -1,0 +1,42 @@
+{% assign kp = widget.settings.kp | default: 4 %}
+{% assign ang = kp | times: 20 | minus: 90 %}
+{% if kp >= 8 %}{% assign kc = "#ff3d71" %}{% assign level = "Severe storm" %}
+{% elsif kp >= 7 %}{% assign kc = "#ff5c8a" %}{% assign level = "Strong storm" %}
+{% elsif kp >= 5 %}{% assign kc = "#ffd166" %}{% assign level = "Active" %}
+{% elsif kp >= 3 %}{% assign kc = "#37ffb0" %}{% assign level = "Unsettled" %}
+{% else %}{% assign kc = "#22d3ee" %}{% assign level = "Quiet" %}{% endif %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="container">
+    <div class="forecast reveal" style="--kc:{{ kc }};--accent:{{ kc }}">
+      <div>
+        {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+        <h2>{{ widget.settings.heading }}</h2>
+        <p class="lede">{{ widget.settings.body }}</p>
+        <div class="readings">
+          <div class="reading"><b>{{ widget.settings.windSpeed | default: 420 }}</b><small>Solar wind km/s</small></div>
+          <div class="reading"><b>{{ widget.settings.bz | default: -3 }} nT</b><small>Bz field</small></div>
+          <div class="reading"><b>{{ widget.settings.cloudCover | default: 20 }}%</b><small>Cloud cover</small></div>
+        </div>
+        <div class="hero-actions">
+          {% if widget.settings.ctaText %}<a class="btn btn-primary" href="{{ widget.settings.ctaUrl }}">{{ widget.settings.ctaText }} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>{% endif %}
+          {% if widget.settings.updated %}<span class="pill"><span class="dot" style="background:{{ kc }};box-shadow:0 0 10px {{ kc }}"></span>Updated {{ widget.settings.updated | date: "%b %e, %Y" }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="dial" style="--ang:{{ ang }}deg">
+        <svg viewBox="0 0 400 230" role="img" aria-label="Kp index {{ kp }} of 9">
+          <path d="M40.1 195.8 A160 160 0 0 1 48.3 149.2" stroke="#22d3ee" stroke-width="18" fill="none" opacity="0.35"/><text x="16.8" y="171.7" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">1</text>
+          <path d="M51.1 141.4 A160 160 0 0 1 74.8 100.4" stroke="#22d3ee" stroke-width="18" fill="none" opacity="0.41"/><text x="38.9" y="111.0" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">2</text>
+          <path d="M80.2 94.0 A160 160 0 0 1 116.4 63.6" stroke="#37ffb0" stroke-width="18" fill="none" opacity="0.47"/><text x="80.4" y="61.5" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">3</text>
+          <path d="M123.7 59.4 A160 160 0 0 1 168.1 43.2" stroke="#37ffb0" stroke-width="18" fill="none" opacity="0.53"/><text x="136.4" y="29.2" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">4</text>
+          <path d="M176.4 41.8 A160 160 0 0 1 223.6 41.8" stroke="#9af07a" stroke-width="18" fill="none" opacity="0.59"/><text x="200" y="18" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">5</text>
+          <path d="M231.9 43.2 A160 160 0 0 1 276.3 59.4" stroke="#ffd166" stroke-width="18" fill="none" opacity="0.65"/><text x="263.6" y="29.2" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">6</text>
+          <path d="M283.6 63.6 A160 160 0 0 1 319.8 94.0" stroke="#ffb347" stroke-width="18" fill="none" opacity="0.71"/><text x="319.6" y="61.5" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">7</text>
+          <path d="M325.2 100.4 A160 160 0 0 1 348.9 141.4" stroke="#ff5c8a" stroke-width="18" fill="none" opacity="0.77"/><text x="361.1" y="111.0" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">8</text>
+          <path d="M351.7 149.2 A160 160 0 0 1 359.9 195.8" stroke="#ff3d71" stroke-width="18" fill="none" opacity="0.83"/><text x="383.2" y="171.7" fill="#7d8db0" font-size="12" font-family="monospace" text-anchor="middle">9</text>
+          <g class="needle"><path d="M196 200 L200 62 L204 200 Z" fill="{{ kc }}"/><circle cx="200" cy="200" r="12" fill="#050914" stroke="{{ kc }}" stroke-width="3"/></g>
+        </svg>
+        <div class="readout"><b>{{ kp }}</b><span>Kp &middot; {{ level }}</span></div>
+      </div>
+    </div>
+  </div>
+</section>

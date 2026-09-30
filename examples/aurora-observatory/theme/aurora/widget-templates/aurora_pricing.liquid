@@ -1,0 +1,21 @@
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="container">
+    <div class="section-head center reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="pricing">
+      {% for p in widget.settings.plans %}
+      <article class="card plan reveal{% if p.highlight %} hot{% endif %}" style="--i:{{ forloop.index0 }};--accent:{{ p.color | default: '#37ffb0' }}">
+        {% if p.badge %}<span class="pill badge"><span class="dot"></span>{{ p.badge }}</span>{% endif %}
+        <div class="eyebrow" style="margin:0">{{ p.name }}</div>
+        <div class="price">${{ p.price | divided_by: 1000 }},{{ p.price | modulo: 1000 | prepend: "000" | slice: -3, 3 }} <small>{{ p.unit }}</small></div>
+        <p style="color:var(--ink-2)">{{ p.blurb }}</p>
+        <ul class="ticks">{% assign feats = p.features | split: " | " %}{% for f in feats %}<li>{{ f }}</li>{% endfor %}</ul>
+        <a class="btn {% if p.highlight %}btn-primary{% else %}btn-ghost{% endif %}" href="{{ p.url | default: '#' }}">{{ p.cta | default: 'Choose' }}</a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
