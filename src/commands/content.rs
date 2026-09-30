@@ -1,0 +1,286 @@
+//! Content items: the records of a content type (posts, products, team members, ...).
+//!
+//! `--data` is always the object of field values keyed by field developer name.
+
+use super::{ListArgs, list, require_yes, resolve_template, str_of};
+use crate::client::Client;
+use crate::error::{CliError, Result};
+use crate::input::BodyArgs;
+use clap::Subcommand;
+use serde_json::{Map, Value, json};
+
+const EMPTY_ID: &str = "AAAAAAAAAAAAAAAAAAAAAA";
+
+#[derive(Subcommand, Debug)]
+pub enum Cmd {
+    /// List items of a content type.
+    List {
+        content_type: String,
+        /// Restrict to a view (its filter and sort apply).
+        #[arg(long)]
+        view_id: Option<String>,
+        /// Filter expression, for example `title eq 'Hello'`. See `raytha guide content-types`.
+        #[arg(long)]
+        filter: Option<String>,
+        #[command(flatten)]
+        list: ListArgs,
+    },
+    /// Get one item by id.
+    Get { content_type: String, id: String },
+    /// Get an item by its URL path.
+    GetByPath {
+        content_type: String,
+        /// Route path, for example `blog/hello-world`.
+        path: String,
+    },
+    /// Create an item. `--data` holds the field values.
+    Create {
+        content_type: String,
+        #[command(flatten)]
+        body: BodyArgs,
+        /// Web template developer name (ACTIVE theme) used to render the item.
+        #[arg(long)]
+        template: Option<String>,
+        /// Web template id, instead of --template.
+        #[arg(long)]
+        template_id: Option<String>,
+        /// Save as an unpublished draft.
+        #[arg(long)]
+        draft: bool,
+        /// URL path for the item (set after creation).
+        #[arg(long)]
+        route_path: Option<String>,
+    },
+    /// Edit an item's field values (published unless --draft).
+    Edit {
+        content_type: String,
+        id: String,
+        #[command(flatten)]
+        body: BodyArgs,
+        /// Overlay --data onto the current values instead of replacing them.
+        #[arg(long)]
+        merge: bool,
+        /// Save as draft instead of publishing the change.
+        #[arg(long)]
+        draft: bool,
+    },
+    /// Change the item's URL path and/or template.
+    Settings {
+        content_type: String,
+        id: String,
+        #[arg(long)]
+        route_path: Option<String>,
+        #[arg(long)]
+        template: Option<String>,
+        #[arg(long)]
+        template_id: Option<String>,
+    },
+    /// Publish the item's current draft (or re-publish its content).
+    Publish { content_type: String, id: String },
+    /// Take the item offline.
+    Unpublish { content_type: String, id: String },
+    /// Throw away unpublished draft changes.
+    DiscardDraft { content_type: String, id: String },
+    /// Make this item the site home page.
+    SetHome { content_type: String, id: String },
+    /// Move an item to the trash.
+    Delete {
+        content_type: String,
+        id: String,
+        /// Confirm the deletion.
+        #[arg(long)]
+        yes: bool,
+    },
+    /// List trashed items.
+    Trash { content_type: String },
+    /// Restore a trashed item.
+    Restore { content_type: String, id: String },
+    /// Permanently delete a trashed item.
+    Purge {
+        content_type: String,
+        id: String,
+        /// Confirm permanent deletion.
+        #[arg(long)]
+        yes: bool,
+    },
+}
+
+pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
+    match cmd {
+        Cmd::List {
+            content_type,
+            view_id,
+            filter,
+            list: args,
+        } => {
+            let mut extra = Vec::new();
+            if let Some(v) = view_id {
+                extra.push(("viewId", v));
+            }
+            if let Some(f) = filter {
+                extra.push(("filter", f));
+            }
+            list(client, &["contentitems", &content_type], &extra, &args)
+        }
+        Cmd::Get { content_type, id } => client.get(&["contentitems", &content_type, &id], &[]),
+        Cmd::GetByPath { content_type, path } => {
+            let path = path.trim_matches('/').to_string();
+            let route = client.get(&["contentitems", &content_type, "route", &path], &[])?;
+            match str_of(&route, "contentItemId") {
+                Some(id) if id != EMPTY_ID && !id.is_empty() => {
+                    client.get(&["contentitems", &content_type, id], &[])
+                }
+                _ => Ok(route),
+            }
+        }
+        Cmd::Create {
+            content_type,
+            body,
+            template,
+            template_id,
+            draft,
+            route_path,
+        } => {
+            let content = body.require_object("Item content (field values)")?;
+            let mut b = Map::new();
+            b.insert("saveAsDraft".into(), json!(draft));
+            b.insert("content".into(), Value::Object(content));
+            if let Some(t) =
+                resolve_template(client, template.as_deref(), template_id.as_deref(), None)?
+            {
+                b.insert("templateId".into(), json!(t));
+            }
+            let created = client.post(&["contentitems", &content_type], Some(&Value::Object(b)))?;
+            if let Some(path) = route_path {
+                let id = str_of(&created, "id").unwrap_or_default().to_string();
+                let current = client.get(&["contentitems", &content_type, &id], &[])?;
+                let mut s = Map::new();
+                s.insert("routePath".into(), json!(path));
+                if let Some(t) = str_of(&current, "webTemplateId") {
+                    s.insert("templateId".into(), json!(t));
+                }
+                client.put(
+                    &["contentitems", &content_type, &id, "settings"],
+                    Some(&Value::Object(s)),
+                )?;
+                return client.get(&["contentitems", &content_type, &id], &[]);
+            }
+            Ok(created)
+        }
+        Cmd::Edit {
+            content_type,
+            id,
+            body,
+            merge,
+            draft,
+        } => {
+            let new_fields = body.require_object("Item content (field values)")?;
+            let content = if merge {
+                let item = client.get(&["contentitems", &content_type, &id], &[])?;
+                let mut base = current_content(&item);
+                base.extend(new_fields);
+                base
+            } else {
+                new_fields
+            };
+            let b = json!({ "saveAsDraft": draft, "content": Value::Object(content) });
+            client.put(&["contentitems", &content_type, &id], Some(&b))
+        }
+        Cmd::Settings {
+            content_type,
+            id,
+            route_path,
+            template,
+            template_id,
+        } => {
+            let item = client.get(&["contentitems", &content_type, &id], &[])?;
+            let template_id =
+                resolve_template(client, template.as_deref(), template_id.as_deref(), None)?
+                    .or_else(|| str_of(&item, "webTemplateId").map(str::to_string));
+            let mut b = Map::new();
+            b.insert(
+                "routePath".into(),
+                json!(
+                    route_path.unwrap_or_else(|| str_of(&item, "routePath")
+                        .unwrap_or_default()
+                        .to_string())
+                ),
+            );
+            if let Some(t) = template_id {
+                b.insert("templateId".into(), json!(t));
+            }
+            client.put(
+                &["contentitems", &content_type, &id, "settings"],
+                Some(&Value::Object(b)),
+            )
+        }
+        Cmd::Publish { content_type, id } => {
+            // The API publishes by saving the content as non-draft.
+            let item = client.get(&["contentitems", &content_type, &id], &[])?;
+            let content = current_content(&item);
+            if content.is_empty() {
+                return Err(CliError::validation("The item has no content to publish."));
+            }
+            let b = json!({ "saveAsDraft": false, "content": Value::Object(content) });
+            client.put(&["contentitems", &content_type, &id], Some(&b))
+        }
+        Cmd::Unpublish { content_type, id } => {
+            client.put(&["contentitems", &content_type, &id, "unpublish"], None)
+        }
+        Cmd::DiscardDraft { content_type, id } => {
+            client.put(&["contentitems", &content_type, &id, "discard-draft"], None)
+        }
+        Cmd::SetHome { content_type, id } => client.put(
+            &["contentitems", &content_type, &id, "set-as-home-page"],
+            None,
+        ),
+        Cmd::Delete {
+            content_type,
+            id,
+            yes,
+        } => {
+            require_yes(yes, &format!("content item '{id}'"))?;
+            client.delete(&["contentitems", &content_type, &id], &[])
+        }
+        Cmd::Trash { content_type } => client.get(&["contentitems", &content_type, "trash"], &[]),
+        Cmd::Restore { content_type, id } => {
+            client.put(&["contentitems", &content_type, &id, "restore"], None)
+        }
+        Cmd::Purge {
+            content_type,
+            id,
+            yes,
+        } => {
+            require_yes(yes, &format!("trashed content item '{id}' permanently"))?;
+            client.delete(&["contentitems", &content_type, "trash", &id], &[])
+        }
+    }
+}
+
+/// The content an edit should start from: the draft when there is one, else what is published.
+pub fn current_content(item: &Value) -> Map<String, Value> {
+    let is_draft = item
+        .get("isDraft")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let pick = |key: &str| item.get(key).and_then(Value::as_object).cloned();
+    if is_draft && let Some(d) = pick("draftContent") {
+        return d;
+    }
+    pick("publishedContent")
+        .or_else(|| pick("draftContent"))
+        .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn prefers_draft_content() {
+        let item = json!({"isDraft": true, "draftContent": {"a": 2}, "publishedContent": {"a": 1}});
+        assert_eq!(current_content(&item)["a"], 2);
+        let item = json!({"isDraft": false, "draftContent": null, "publishedContent": {"a": 1}});
+        assert_eq!(current_content(&item)["a"], 1);
+    }
+}

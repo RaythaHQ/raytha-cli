@@ -1,0 +1,123 @@
+name: Release
+
+# Push a tag like v0.1.0 (matching Cargo.toml) to build binaries and publish a GitHub release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag must match Cargo.toml
+        run: |
+          crate="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)"
+          if [ "v$crate" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match Cargo.toml version v$crate" >&2
+            exit 1
+          fi
+
+  build:
+    needs: check-version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-musl, os: ubuntu-latest, zig: true }
+          - { target: aarch64-unknown-linux-musl, os: ubuntu-latest, zig: true }
+          - { target: x86_64-apple-darwin, os: macos-14 }
+          - { target: aarch64-apple-darwin, os: macos-14 }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install zig and cargo-zigbuild
+        if: matrix.zig
+        run: |
+          pip install ziglang
+          cargo install cargo-zigbuild --locked
+
+      - name: Build (zig, static musl)
+        if: matrix.zig
+        run: cargo zigbuild --release --locked --target ${{ matrix.target }}
+
+      - name: Build
+        if: ${{ !matrix.zig }}
+        run: cargo build --release --locked --target ${{ matrix.target }}
+
+      - name: Package (unix)
+        if: runner.os != 'Windows'
+        run: |
+          out="raytha-${{ matrix.target }}.tar.gz"
+          tar -czf "$out" -C "target/${{ matrix.target }}/release" raytha
+          echo "ASSET=$out" >> "$GITHUB_ENV"
+
+      - name: Package (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $out = "raytha-${{ matrix.target }}.zip"
+          Compress-Archive -Path "target/${{ matrix.target }}/release/raytha.exe" -DestinationPath $out
+          "ASSET=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Smoke test the binary (native targets)
+        if: matrix.target != 'aarch64-unknown-linux-musl' && matrix.target != 'x86_64-apple-darwin'
+        shell: bash
+        run: |
+          bin="target/${{ matrix.target }}/release/raytha"
+          [ -f "$bin.exe" ] && bin="$bin.exe"
+          "$bin" --version
+          "$bin" guide overview | head -n 3
+
+      - name: Static linking check
+        if: startsWith(matrix.target, 'x86_64-unknown-linux-musl')
+        run: |
+          file "target/${{ matrix.target }}/release/raytha"
+          ! ldd "target/${{ matrix.target }}/release/raytha" 2>/dev/null | grep -q "=>"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: ${{ env.ASSET }}
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        working-directory: dist
+        run: |
+          ls -l
+          sha256sum raytha-* > SHA256SUMS
+          cat SHA256SUMS
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes
+      - name: Attach install scripts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" install.sh install.ps1 --clobber
