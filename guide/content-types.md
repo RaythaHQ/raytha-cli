@@ -60,7 +60,8 @@ raytha content purge posts <id> --yes
   attachment fields take the object key from `raytha media upload`; relationships take the related
   item's id; multiple_select takes an array of choice developer names.
 - `content create` publishes unless `--draft`. `--template` names a web template in the **active
-  theme** used to render the item; the template must be allowed for this content type.
+  theme** used to render the item; the template must be allowed for this content type. The API
+  requires a template, so without `--template` the CLI uses `raytha_html_content_item_detail`.
 - Without `--merge`, `content edit` replaces the whole field set; with it only the keys you pass
   change. Prefer `--merge`.
 - There is no separate publish endpoint in the API; `content publish` re-saves the current draft

@@ -834,3 +834,18 @@ async fn user_groups_crud_routes() {
     );
     h.assert_contract().await;
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn content_create_defaults_to_the_builtin_detail_template() {
+    let h = Harness::new().await;
+    mock_active_theme_with_template(&h, "raytha_html_content_item_detail").await;
+    h.ok("POST", "/contentitems/posts", json!("ITEMID")).await;
+    h.run(&["content", "create", "posts", "--data", r#"{"title":"Hi"}"#])
+        .await
+        .data();
+    assert_eq!(
+        h.writes().await[0].body.as_ref().unwrap()["templateId"],
+        "TPLID"
+    );
+    h.assert_contract().await;
+}

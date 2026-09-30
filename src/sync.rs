@@ -322,10 +322,16 @@ pub fn push(client: &Client, args: &PushArgs) -> Result<Value> {
         Err(e) if e.exit == EXIT_NOT_FOUND => None,
         Err(e) => return Err(e),
     };
-    let theme_exists = remote_theme.is_some();
+    let mut theme_exists = remote_theme.is_some();
     match &remote_theme {
         None => {
-            rep.add("theme", dev, "create", None);
+            // Raytha gives every new theme its built-in templates, so after creating it the
+            // remote lists below are read back rather than assumed empty.
+            let note = dry.then(|| {
+                "new theme: Raytha adds the built-in templates itself, so pushed files with built-in names become updates"
+                    .to_string()
+            });
+            rep.add("theme", dev, "create", note);
             if !dry {
                 let body = json!({
                     "title": local.title,
@@ -334,6 +340,7 @@ pub fn push(client: &Client, args: &PushArgs) -> Result<Value> {
                     "insertDefaultThemeMediaItems": false,
                 });
                 client.post(&["themes"], Some(&body))?;
+                theme_exists = true;
             }
         }
         Some(t) => {

@@ -277,6 +277,10 @@ async fn mock_absent_theme(h: &Harness) {
     h.ok("POST", "/themes", json!(ID)).await;
     h.ok("POST", "/webtemplates/theme/mine", json!(ID)).await;
     h.ok("POST", "/widgettemplates/theme/mine", json!(ID)).await;
+    // After creating the theme the CLI reads the (here empty) remote lists back.
+    h.ok("GET", "/webtemplates", list(json!([]))).await;
+    h.ok("GET", "/widgettemplates", list(json!([]))).await;
+    h.ok("GET", "/themes/mine/media", json!([])).await;
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -441,6 +445,9 @@ async fn push_reports_partial_failure_with_the_full_report() {
         json!({"title": "Invalid", "errors": {"Fields": ["bad field"]}}),
     )
     .await;
+    h.ok("GET", "/webtemplates", list(json!([]))).await;
+    h.ok("GET", "/widgettemplates", list(json!([]))).await;
+    h.ok("GET", "/themes/mine/media", json!([])).await;
     let out = h
         .run(&["theme", "push", dir.path().to_str().unwrap()])
         .await;

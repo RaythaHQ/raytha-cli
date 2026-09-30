@@ -64,6 +64,8 @@ raytha theme push ./my_theme --prune --dry-run
 - Media: push uploads new files and skips existing ones by name. `--replace-media` re-uploads files
   whose size differs. `--no-media` skips media entirely.
 - `--activate` makes the theme live after a successful push.
+- Creating a theme makes Raytha add all built-in templates itself. Pushing a pulled default theme
+  to a new name therefore reports `unchanged`/`update` for those, and `create` only for your own.
 
 ## Piece by piece
 

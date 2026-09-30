@@ -2,7 +2,9 @@
 //!
 //! `--data` is always the object of field values keyed by field developer name.
 
-use super::{ListArgs, list, require_yes, resolve_template, str_of};
+use super::{ListArgs, list, require_yes, resolve_template, str_of, web_template_id};
+
+const DEFAULT_DETAIL_TEMPLATE: &str = "raytha_html_content_item_detail";
 use crate::client::Client;
 use crate::error::{CliError, Result};
 use crate::input::BodyArgs;
@@ -145,11 +147,21 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             let mut b = Map::new();
             b.insert("saveAsDraft".into(), json!(draft));
             b.insert("content".into(), Value::Object(content));
-            if let Some(t) =
-                resolve_template(client, template.as_deref(), template_id.as_deref(), None)?
-            {
-                b.insert("templateId".into(), json!(t));
-            }
+            // The API insists on a template. Default to the built-in detail view, which every
+            // theme has and which new content types may use.
+            let template_id =
+                match resolve_template(client, template.as_deref(), template_id.as_deref(), None)?
+                {
+                    Some(t) => t,
+                    None => web_template_id(client, None, DEFAULT_DETAIL_TEMPLATE).map_err(|e| {
+                        e.with_hint(format!(
+                            "Content needs a template: pass --template <developer_name> (a detail \
+                             template in the active theme; `raytha web-template list --theme <theme>`). \
+                             The default '{DEFAULT_DETAIL_TEMPLATE}' could not be found."
+                        ))
+                    })?,
+                };
+            b.insert("templateId".into(), json!(template_id));
             let created = client.post(&["contentitems", &content_type], Some(&Value::Object(b)))?;
             if let Some(path) = route_path {
                 let id = str_of(&created, "id").unwrap_or_default().to_string();
