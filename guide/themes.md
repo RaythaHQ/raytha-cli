@@ -84,9 +84,25 @@ raytha theme match-templates new_theme --map aurora_list_posts=new_list_posts,au
   the way to check a page without publishing it: push, preview, fix, repeat.
 - `match-templates` is for moving a live site to another theme without losing view and item bindings. Each
   `--map OLD=NEW` pairs a template of the **active** theme with one of the new theme (`--map-json` takes an object).
-  It runs as a background job, returns the job id, and then **makes the new theme active**. Only templates that are
-  still unbound in the new theme are accepted, and an empty map just activates. Do not delete the theme right after
-  calling it, because the job may not have finished.
+  It runs as a background job and then **makes the new theme active**. Only templates that are still unbound in the
+  new theme are accepted, and an empty map just activates. Add `--wait` to block until the job finishes (without it
+  you get the task id; `raytha task wait <id>` blocks later). Do not delete the theme before the job is done.
+
+## Copying a theme and seeing what uses a template
+
+```bash
+raytha theme duplicate aurora aurora_v2 --wait       # templates, widget templates, media, view bindings
+raytha theme usage aurora                            # per template: views, items, site pages, child templates
+raytha theme usage aurora --unused                   # custom templates nothing uses (safe to delete)
+raytha theme usage aurora --template aurora_base_layout
+raytha task get <id>                                 # status of any background job
+```
+
+- `duplicate` is the safe way to start a new design: the copy keeps every view and item binding, so you do not need
+  `match-templates` or the replacement-view workaround below. Edit the copy, `theme push --dry-run`, then
+  `theme activate`.
+- Check `theme usage` before deleting or renaming a template. Raytha refuses to delete a web template that a site
+  page uses.
 
 ## Piece by piece
 
@@ -119,9 +135,11 @@ raytha theme activate my_theme
 - Every theme must contain Raytha's built-in templates (`raytha_html_*`: error pages, login, list/detail
   fallbacks, page layouts). `theme create` adds them; push a pulled copy of the default theme's built-ins with
   your overrides on top (re-parent them with the sidecar `parent`) rather than deleting them.
-- Views and content items bind to templates **per theme**. Views created while another theme was active have no
-  binding in the new theme, and `content-type views settings` answers 500 "Sequence contains no elements".
-  Fix: `views create` a replacement (it binds to the active theme's built-in list template), `views delete`
+- Views and content items bind to templates **per theme**. Prefer `theme duplicate`, which carries the bindings
+  over. Views created while another theme was active have no binding in a theme made some other way, and
+  `content-type views settings` without `--template` answers 400 "Template is required". Fix with
+  `views settings --template <list template>`, or `theme match-templates`, or: `views create` a replacement (it binds to the active theme's built-in list template), `views delete`
   the old one, then run `views settings`. Do this before you run `content create --template ...`, and delete
   stock sample items that have no template in the new theme: one such item makes its whole list view 500.
-- After every push, request each public route and read the status. Template errors return empty bodies.
+- After every push, run `raytha check`: it requests every public route (home, views, items, site pages, a missing
+  page) and exits 6 when any fail. Template errors return empty bodies in production.

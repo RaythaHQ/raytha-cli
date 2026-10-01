@@ -62,7 +62,12 @@ raytha doctor                              connectivity, key, permissions
 raytha guide [topic]                       these docs
 raytha spec [--summary] [--path text]      live OpenAPI operations (for gaps only)
 
-raytha theme ...                           list get create edit delete activate pull push media
+raytha check                               request every public route; exit 6 if any fail
+raytha task ...                            background jobs: get wait (theme duplicate, batch import)
+raytha schema ...                          content model as one document: export import
+raytha function ...                        Raytha Functions (JavaScript): list get create edit delete revisions revert
+
+raytha theme ...                           list get create edit delete duplicate usage activate pull push media
 raytha web-template ...                    layouts and page templates (liquid)
 raytha widget-template ...                 reusable blocks with a settings form
 raytha site-page ...                       pages made of widgets in sections
@@ -74,7 +79,10 @@ raytha user / user-group ...               public users and groups
 ```
 
 Every group has `--help`. Topics: overview, build-a-site, themes, liquid, widgets, content-types,
-site-pages, media, errors.
+site-pages, media, functions, errors.
+
+Some commands start a background job (`theme duplicate`, `theme match-templates`, `content import`). Add `--wait`
+where offered (`content import` always waits), or run `raytha task wait <id>`.
 
 ## Known quirks of the Raytha API
 

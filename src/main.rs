@@ -102,6 +102,17 @@ enum Command {
     /// Public user groups.
     #[command(subcommand, name = "user-group")]
     UserGroup(commands::user::GroupCmd),
+    /// Request every public route like a visitor and report broken ones (exit 6 if any fail).
+    Check(commands::check::CheckArgs),
+    /// Raytha Functions (JavaScript for HTTP requests, Liquid and content events).
+    #[command(subcommand)]
+    Function(commands::function::Cmd),
+    /// The content model as one portable document: export, import, outline.
+    #[command(subcommand)]
+    Schema(commands::schema::Cmd),
+    /// Background jobs started by other commands (theme copy, template matching, batch import).
+    #[command(subcommand)]
+    Task(commands::task::Cmd),
     /// Dump the live OpenAPI spec (for operations without a curated command).
     Spec(commands::spec::SpecArgs),
 }
@@ -187,6 +198,10 @@ fn run(cli: Cli) -> Result<Option<Value>> {
         Command::Menu(c) => commands::menu::run(&client, c)?,
         Command::User(c) => commands::user::run_users(&client, c)?,
         Command::UserGroup(c) => commands::user::run_groups(&client, c)?,
+        Command::Check(a) => commands::check::run(&client, &a)?,
+        Command::Function(c) => commands::function::run(&client, c)?,
+        Command::Schema(c) => commands::schema::run(&client, c)?,
+        Command::Task(c) => commands::task::run(&client, c)?,
         Command::Guide { .. } => unreachable!("handled above"),
     };
     Ok(Some(data))

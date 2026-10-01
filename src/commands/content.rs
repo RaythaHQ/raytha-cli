@@ -2,9 +2,10 @@
 //!
 //! `--data` is always the object of field values keyed by field developer name.
 
+use super::content_import::{self, has_file_refs, resolve_files};
 use super::{ListArgs, list, require_yes, resolve_template, str_of, web_template_id};
 
-const DEFAULT_DETAIL_TEMPLATE: &str = "raytha_html_content_item_detail";
+pub const DEFAULT_DETAIL_TEMPLATE: &str = "raytha_html_content_item_detail";
 use crate::client::Client;
 use crate::error::{CliError, Result};
 use crate::input::{BodyArgs, read_text};
@@ -92,6 +93,31 @@ pub enum Cmd {
         /// Confirm the deletion.
         #[arg(long)]
         yes: bool,
+    },
+    /// Create many items at once from a JSON array or JSON Lines file.
+    ///
+    /// Each row is an object of field values, like `content create --data`. A relationship field
+    /// may hold an item id, a route path, or the primary field value of the related item (a row
+    /// may reference another row of the same file; that row is created first). A string value
+    /// `@file:./img.jpg` uploads the file and stores its object key. Rows are created
+    /// independently: failures are listed with their row `index` and the rest still import.
+    Import {
+        content_type: String,
+        /// Items file: JSON array or JSON Lines (`-` for stdin).
+        #[arg(long, value_name = "PATH|-")]
+        file: String,
+        /// Web template developer name (ACTIVE theme) for every item.
+        #[arg(long)]
+        template: Option<String>,
+        /// Web template id, instead of --template.
+        #[arg(long)]
+        template_id: Option<String>,
+        /// Save every item as an unpublished draft.
+        #[arg(long)]
+        draft: bool,
+        /// Give up waiting after this many seconds (the import keeps running).
+        #[arg(long, default_value_t = 300, value_name = "SECONDS")]
+        wait_timeout: u64,
     },
     /// Move several items of one content type to the trash in a single call.
     ///
@@ -181,6 +207,7 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             route_path,
         } => {
             let content = body.require_object("Item content (field values)")?;
+            let content = with_files(client, content)?;
             let mut b = Map::new();
             b.insert("saveAsDraft".into(), json!(draft));
             b.insert("content".into(), Value::Object(content));
@@ -224,6 +251,7 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             draft,
         } => {
             let new_fields = body.require_object("Item content (field values)")?;
+            let new_fields = with_files(client, new_fields)?;
             let content = if merge {
                 let item = client.get(&["contentitems", &content_type, &id], &[])?;
                 let mut base = current_content(&item);
@@ -291,6 +319,24 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             require_yes(yes, &format!("content item '{id}'"))?;
             client.delete(&["contentitems", &content_type, &id], &[])
         }
+        Cmd::Import {
+            content_type,
+            file,
+            template,
+            template_id,
+            draft,
+            wait_timeout,
+        } => content_import::run(
+            client,
+            content_import::ImportArgs {
+                content_type,
+                file,
+                template,
+                template_id,
+                draft,
+                wait_timeout,
+            },
+        ),
         Cmd::DeleteMany {
             content_type,
             mut ids,
@@ -357,6 +403,18 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             client.delete(&["contentitems", &content_type, "trash", &id], &[])
         }
     }
+}
+
+/// Uploads any `@file:` references in the values (relative to the working directory).
+fn with_files(client: &Client, content: Map<String, Value>) -> Result<Map<String, Value>> {
+    let mut v = Value::Object(content);
+    if has_file_refs(&v) {
+        resolve_files(client, &mut v, std::path::Path::new("."))?;
+    }
+    Ok(match v {
+        Value::Object(m) => m,
+        _ => Map::new(),
+    })
 }
 
 /// Ids from a JSON array of strings, or any whitespace/comma separated list.

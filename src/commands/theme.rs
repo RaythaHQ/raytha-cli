@@ -1,5 +1,6 @@
 //! Themes: the container for web templates, widget templates, and theme media.
 
+use super::task::{self, WaitArgs};
 use super::{ListArgs, list, require_yes, str_of};
 use crate::client::Client;
 use crate::error::{CliError, Result};
@@ -58,6 +59,37 @@ pub enum Cmd {
         /// JSON object `{"old":"new"}`: inline, `@path` or `-`.
         #[arg(long, value_name = "JSON|@PATH|-")]
         map_json: Option<String>,
+        #[command(flatten)]
+        wait: WaitArgs,
+    },
+    /// Copy a theme (templates, widget templates, media and view bindings) under a new name.
+    ///
+    /// Runs as a background job; the new theme appears when it finishes (use `--wait`).
+    Duplicate {
+        /// Theme to copy.
+        developer_name: String,
+        /// Developer name of the copy (normalized to lowercase_with_underscores).
+        new_developer_name: String,
+        /// Display title (defaults to a humanized developer name).
+        #[arg(long)]
+        title: Option<String>,
+        /// Description (defaults to the title).
+        #[arg(long)]
+        description: Option<String>,
+        #[command(flatten)]
+        wait: WaitArgs,
+    },
+    /// Show which views, items, site pages and child templates use each web template.
+    ///
+    /// Use it before deleting or renaming a template, or `--unused` to list templates nothing uses.
+    Usage {
+        developer_name: String,
+        /// Only this template (developer name).
+        #[arg(long, value_name = "NAME")]
+        template: Option<String>,
+        /// Only custom templates that nothing uses (built-in templates are left out).
+        #[arg(long, conflicts_with = "template")]
+        unused: bool,
     },
     /// Make this theme the one the public site renders with.
     Activate { developer_name: String },
@@ -181,6 +213,7 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             developer_name,
             map,
             map_json,
+            wait,
         } => {
             let mut pairs = serde_json::Map::new();
             if let Some(raw) = map_json {
@@ -196,10 +229,65 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
                 })?;
                 pairs.insert(old.trim().to_string(), json!(new.trim()));
             }
-            client.post(
+            let started = client.post(
                 &["themes", &developer_name, "match-web-templates"],
                 Some(&json!({ "matchedWebTemplateDeveloperNames": pairs })),
-            )
+            )?;
+            task::finish(client, started, &wait)
+        }
+        Cmd::Duplicate {
+            developer_name,
+            new_developer_name,
+            title,
+            description,
+            wait,
+        } => {
+            let new_name = to_developer_name(&new_developer_name);
+            let title = title.unwrap_or_else(|| humanize(&new_name));
+            let description = description.unwrap_or_else(|| title.clone());
+            let started = client.post(
+                &["themes", &developer_name, "duplicate"],
+                Some(&json!({
+                    "title": title,
+                    "developerName": new_name,
+                    "description": description,
+                })),
+            )?;
+            let mut out = task::finish(client, started, &wait)?;
+            out["theme"] = json!(new_name);
+            Ok(out)
+        }
+        Cmd::Usage {
+            developer_name,
+            template,
+            unused,
+        } => {
+            let mut usage = client.get(&["themes", &developer_name, "usage"], &[])?;
+            if let Some(list) = usage.get_mut("templates").and_then(Value::as_array_mut) {
+                list.retain(|t| {
+                    if let Some(name) = &template {
+                        return str_of(t, "developerName") == Some(name.as_str());
+                    }
+                    if unused {
+                        let in_use = t.get("inUse").and_then(Value::as_bool).unwrap_or(true);
+                        let built_in = t
+                            .get("isBuiltInTemplate")
+                            .and_then(Value::as_bool)
+                            .unwrap_or(false);
+                        return !in_use && !built_in;
+                    }
+                    true
+                });
+                if let Some(name) = &template
+                    && list.is_empty()
+                {
+                    return Err(CliError::not_found(format!(
+                        "Template '{name}' is not in theme '{developer_name}'."
+                    ))
+                    .with_hint("List them with `raytha web-template list --theme <theme>`."));
+                }
+            }
+            Ok(usage)
         }
         Cmd::Activate { developer_name } => {
             client.post(&["themes", &developer_name, "set-active"], None)

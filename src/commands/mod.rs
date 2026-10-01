@@ -1,13 +1,18 @@
 //! Command implementations. Each module exposes a clap `Cmd` enum and a `run` function that
 //! returns the JSON `data` payload.
 
+pub mod check;
 pub mod content;
+pub mod content_import;
 pub mod content_type;
 pub mod doctor;
+pub mod function;
 pub mod media;
 pub mod menu;
+pub mod schema;
 pub mod site_page;
 pub mod spec;
+pub mod task;
 pub mod theme;
 pub mod user;
 pub mod web_template;

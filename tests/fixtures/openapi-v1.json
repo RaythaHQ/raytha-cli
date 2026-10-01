@@ -1,6 +1,17 @@
 {
  "note": "Snapshot of Raytha's OpenAPI v1 paths: method, operationId and parameters only. Request body schemas are omitted on purpose; they are unreliable in the source spec.",
  "paths": {
+  "/raytha/api/v1/BackgroundTasks/{id}": {
+   "get": {
+    "operationId": "GetBackgroundTaskById",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "id"
+     }
+    ]
+   }
+  },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}": {
    "get": {
     "operationId": "GetContentItems",
@@ -37,6 +48,17 @@
    },
    "post": {
     "operationId": "CreateContentItem",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "contentTypeDeveloperName"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/batch": {
+   "post": {
+    "operationId": "BatchCreateContentItems",
     "parameters": [
      {
       "in": "path",
@@ -251,10 +273,27 @@
     "parameters": []
    }
   },
+  "/raytha/api/v1/ContentTypes/export": {
+   "get": {
+    "operationId": "ExportSchema",
+    "parameters": []
+   }
+  },
   "/raytha/api/v1/ContentTypes/field-types": {
    "get": {
     "operationId": "GetContentTypeFieldTypes",
     "parameters": []
+   }
+  },
+  "/raytha/api/v1/ContentTypes/import": {
+   "post": {
+    "operationId": "ImportSchema",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "dryRun"
+     }
+    ]
    }
   },
   "/raytha/api/v1/ContentTypes/{contentTypeDeveloperName}": {
@@ -273,6 +312,100 @@
      {
       "in": "path",
       "name": "contentTypeDeveloperName"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/Functions": {
+   "get": {
+    "operationId": "GetFunctions",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "search"
+     },
+     {
+      "in": "query",
+      "name": "orderBy"
+     },
+     {
+      "in": "query",
+      "name": "pageNumber"
+     },
+     {
+      "in": "query",
+      "name": "pageSize"
+     }
+    ]
+   },
+   "post": {
+    "operationId": "CreateFunction",
+    "parameters": []
+   }
+  },
+  "/raytha/api/v1/Functions/{developerName}": {
+   "get": {
+    "operationId": "GetFunctionByDeveloperName",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "developerName"
+     }
+    ]
+   },
+   "put": {
+    "operationId": "EditFunction",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "developerName"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteFunction",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "developerName"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/Functions/{developerName}/revisions": {
+   "get": {
+    "operationId": "GetFunctionRevisions",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "developerName"
+     },
+     {
+      "in": "query",
+      "name": "orderBy"
+     },
+     {
+      "in": "query",
+      "name": "pageNumber"
+     },
+     {
+      "in": "query",
+      "name": "pageSize"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/Functions/{developerName}/revisions/{revisionId}/revert": {
+   "post": {
+    "operationId": "RevertFunction",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "developerName"
+     },
+     {
+      "in": "path",
+      "name": "revisionId"
      }
     ]
    }
@@ -701,6 +834,17 @@
     ]
    }
   },
+  "/raytha/api/v1/Themes/{themeDeveloperName}/duplicate": {
+   "post": {
+    "operationId": "DuplicateTheme",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "themeDeveloperName"
+     }
+    ]
+   }
+  },
   "/raytha/api/v1/Themes/{themeDeveloperName}/match-web-templates": {
    "post": {
     "operationId": "MatchWebTemplates",
@@ -750,6 +894,17 @@
   "/raytha/api/v1/Themes/{themeDeveloperName}/set-active": {
    "post": {
     "operationId": "SetActiveTheme",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "themeDeveloperName"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/Themes/{themeDeveloperName}/usage": {
+   "get": {
+    "operationId": "GetThemeTemplateUsage",
     "parameters": [
      {
       "in": "path",
@@ -1185,6 +1340,10 @@
      {
       "in": "query",
       "name": "pageSize"
+     },
+     {
+      "in": "query",
+      "name": "compact"
      }
     ]
    },
@@ -1209,6 +1368,10 @@
      {
       "in": "path",
       "name": "id"
+     },
+     {
+      "in": "query",
+      "name": "compact"
      }
     ]
    },

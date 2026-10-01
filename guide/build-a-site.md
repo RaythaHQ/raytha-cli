@@ -105,6 +105,8 @@ return a URL to put in templates or widget settings. See `raytha guide media`.
   with `line` and `column`.
 - Fetch the public page and look at it: `curl -s "$RAYTHA_URL/about"`. A Liquid error renders as an
   error page or empty block; check the HTML, then fix the template and push again.
+- `raytha check` requests every public route (home, published views, items, site pages, an unknown path) and
+  exits 6 if any fail. With a development server the 500 body names the failing template. Run it after every push.
 - `raytha site-page publish <id>` if a draft is pending.
 
 ## Tips

@@ -16,6 +16,22 @@ A new type starts with two fields, `title` (single line text, the primary field)
 (wysiwyg), and one public list view named like the type. `--route-template` builds each item's URL
 from `{PrimaryField}` (slugified) and `{CurrentYear}`. Default is `{PrimaryField}`.
 
+## The whole model at once
+
+```bash
+raytha schema export --summary                 # one line per field, for your own context
+raytha schema export --out schema.json         # full document: types, fields, choices, views (diffable)
+raytha schema import schema.json --dry-run     # what would be created or updated
+raytha schema import schema.json
+```
+
+- `schema import` matches by developer name, creates what is missing, updates what differs, never deletes, and
+  never changes a field's type. It applies all of it or none of it. The same document works on another site, so
+  it is the quickest way to define five related content types in one call instead of dozens of `fields create`.
+- Relationship fields name the related type (`"relatedContentType": "authors"`); views name their list template
+  (`"template"`) in the active theme.
+- `content-type views list` is compact; `--full` adds the field definitions to every view.
+
 ## Fields
 
 ```bash
@@ -51,6 +67,7 @@ raytha content publish posts <id>
 raytha content unpublish posts <id>
 raytha content settings posts <id> --route-path blog/hello
 raytha content get-by-path posts blog/hello
+raytha content import posts --file items.jsonl --template aurora_detail_post
 raytha content delete posts <id> --yes
 raytha content delete-many posts --ids <id1>,<id2>,<id3> --yes
 raytha content delete-many posts --ids-file ids.json --yes
@@ -61,6 +78,13 @@ raytha content restore posts <id>
 raytha content purge posts <id> --yes
 ```
 
+- `import` creates many items in one batch (a JSON array or JSON Lines file, one object of field values per row,
+  up to 500 per request; larger files are split). A relationship field can hold an item id, a route path, or the
+  **primary field value** of the related item, and a row may refer to another row of the same file. The related
+  item is created first, so seed authors and books in one file. A value `"@file:./img.jpg"` uploads that file and
+  stores its object key (also in `content create --data` and `content edit --data`). Rows fail independently:
+  the command exits 5 with `error.fields.report.items`, each failed row's `index` and `errors`, while the
+  others are created. Re-import only the failed rows.
 - `delete-many` trashes several items of one type in one call (all ids must belong to the type, or nothing is
   deleted). `--ids-file` takes a JSON array or ids separated by whitespace; `-` reads stdin. For example,
   `raytha content list posts --all | jq -r '.data.items[].id' | raytha content delete-many posts --ids-file - --yes`
@@ -149,5 +173,6 @@ yourself (`{{ x | replace: 'arctic_norway', 'Arctic Norway' }}`), or generate th
 A relationship exposes the related item (`.Id`, `.PrimaryField`, `.RoutePath`, `.PublishedContent`); compare ids
 through `{% capture %}` to get string equality.
 
-Filter `type` is `filter_condition` (or `filter_condition_group`). Conditions on `multiple_select` and
-relationship fields are not reliable; filter those client-side or use a dropdown.
+Filter `type` is `filter_condition` (or `filter_condition_group`). `multiple_select` fields filter with
+`contains(seasons, 'jan_feb')` and relationship fields with `lead_guide eq '<item id>'`. Negations (`ne`,
+`notcontains`, ...) also match items that have no value. A malformed filter tree is rejected with a 400.

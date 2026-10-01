@@ -106,6 +106,21 @@ impl Client {
         }
     }
 
+    /// Fetches a public page exactly as a visitor would (no API key, no error mapping) and returns
+    /// the status and body.
+    pub fn fetch_public(&self, path: &str) -> Result<(u16, String)> {
+        let url = format!("{}/{}", self.site, path.trim_start_matches('/'));
+        let resp = self
+            .http
+            .get(&url)
+            .header("Accept", "text/html")
+            .send()
+            .map_err(|e| self.network_error(e))?;
+        let status = resp.status().as_u16();
+        let body = resp.text().unwrap_or_default();
+        Ok((status, body))
+    }
+
     pub fn upload(&self, segs: &[&str], path: &Path) -> Result<Value> {
         self.call(Method::POST, segs, &[], Body::File(path))
     }

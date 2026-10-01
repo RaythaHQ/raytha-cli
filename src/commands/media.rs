@@ -40,20 +40,22 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             client.delete(&["mediaitems", &object_key], &[])
         }
         Cmd::Upload { path } => {
-            let uploaded = client.upload(&["mediaitems", "upload-direct"], &path)?;
-            // The upload answers with the object key; resolve a URL for convenience.
-            let key = uploaded
-                .get("id")
-                .and_then(Value::as_str)
-                .or_else(|| str_of(&uploaded, "objectKey"))
-                .map(str::to_string);
-            match key {
-                Some(key) => {
-                    let url = client.get(&["mediaitems", &key], &[]).ok();
-                    Ok(json!({ "objectKey": key, "url": url }))
-                }
-                None => Ok(uploaded),
-            }
+            let key = upload_key(client, &path)?;
+            let url = client.get(&["mediaitems", &key], &[]).ok();
+            Ok(json!({ "objectKey": key, "url": url }))
         }
     }
+}
+
+/// Uploads a file to the media library and returns its object key.
+pub fn upload_key(client: &Client, path: &std::path::Path) -> Result<String> {
+    let uploaded = client.upload(&["mediaitems", "upload-direct"], path)?;
+    uploaded
+        .get("id")
+        .and_then(Value::as_str)
+        .or_else(|| str_of(&uploaded, "objectKey"))
+        .map(str::to_string)
+        .ok_or_else(|| {
+            crate::error::CliError::server("unexpected_response", "Upload returned no object key.")
+        })
 }

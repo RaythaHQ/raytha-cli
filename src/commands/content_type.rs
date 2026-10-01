@@ -126,14 +126,23 @@ pub enum FieldsCmd {
 
 #[derive(Subcommand, Debug)]
 pub enum ViewsCmd {
-    /// List views.
+    /// List views (compact: field definitions are left out; `--full` adds them).
     List {
         content_type: String,
+        /// Include the full content type and field definitions in every view.
+        #[arg(long)]
+        full: bool,
         #[command(flatten)]
         list: ListArgs,
     },
     /// Get a view by id.
-    Get { content_type: String, id: String },
+    Get {
+        content_type: String,
+        id: String,
+        /// Include the full content type and field definitions.
+        #[arg(long)]
+        full: bool,
+    },
     /// Create a view.
     Create {
         content_type: String,
@@ -440,20 +449,35 @@ fn run_fields(client: &Client, cmd: FieldsCmd) -> Result<Value> {
     }
 }
 
+/// Raytha 2.6.8 answers view requests compactly unless `compact=false`.
+fn compact_query(full: bool) -> Vec<(&'static str, String)> {
+    if full {
+        vec![("compact", "false".to_string())]
+    } else {
+        Vec::new()
+    }
+}
+
 fn run_views(client: &Client, cmd: ViewsCmd) -> Result<Value> {
     match cmd {
         ViewsCmd::List {
             content_type,
+            full,
             list: args,
         } => list(
             client,
             &["contenttypes", &content_type, "views"],
-            &[],
+            &compact_query(full),
             &args,
         ),
-        ViewsCmd::Get { content_type, id } => {
-            client.get(&["contenttypes", &content_type, "views", &id], &[])
-        }
+        ViewsCmd::Get {
+            content_type,
+            id,
+            full,
+        } => client.get(
+            &["contenttypes", &content_type, "views", &id],
+            &compact_query(full),
+        ),
         ViewsCmd::Create {
             content_type,
             name,

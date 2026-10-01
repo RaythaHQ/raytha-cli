@@ -11,8 +11,14 @@ use serde_json::{Map, Value, json};
 
 #[derive(Subcommand, Debug)]
 pub enum Cmd {
-    /// List site pages.
-    List(ListArgs),
+    /// List site pages (compact; `--full` adds sections, widgets and the template source).
+    List {
+        /// Return every field, including widgets and template content.
+        #[arg(long)]
+        full: bool,
+        #[command(flatten)]
+        list: ListArgs,
+    },
     /// Get a page with its sections and widgets (settings are returned as objects).
     Get { id: String },
     /// Create a page, optionally with route, sections of widgets, and publishing in one step.
@@ -135,10 +141,14 @@ pub enum WidgetsCmd {
 
 pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
     match cmd {
-        Cmd::List(args) => {
+        Cmd::List { full, list: args } => {
             let mut res = list(client, &["sitepages"], &[], &args)?;
             if let Some(items) = res.get_mut("items").and_then(Value::as_array_mut) {
-                items.iter_mut().for_each(expose_settings);
+                if full {
+                    items.iter_mut().for_each(expose_settings);
+                } else {
+                    items.iter_mut().for_each(|p| *p = brief(p));
+                }
             }
             Ok(res)
         }
@@ -326,6 +336,29 @@ pub fn get(client: &Client, id: &str) -> Result<Value> {
 
 /// The API embeds the page's whole web template (and its parent layout) source, tens of kilobytes that
 /// an agent never needs here. Keep the identifying fields; `web-template get` returns the source.
+/// One site page without its widgets and template source (a page is often 80 KB).
+fn brief(page: &Value) -> Value {
+    let mut out = Map::new();
+    for key in [
+        "id",
+        "title",
+        "isPublished",
+        "isDraft",
+        "routePath",
+        "webTemplateId",
+        "creationTime",
+        "lastModificationTime",
+    ] {
+        if let Some(v) = page.get(key) {
+            out.insert(key.into(), v.clone());
+        }
+    }
+    if let Some(t) = page.get("webTemplate").and_then(|t| t.get("developerName")) {
+        out.insert("template".into(), t.clone());
+    }
+    Value::Object(out)
+}
+
 fn slim_template(page: &mut Value) {
     let Some(t) = page.get_mut("webTemplate").and_then(Value::as_object_mut) else {
         return;

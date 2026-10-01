@@ -48,6 +48,11 @@ pub const TOPICS: &[Topic] = &[
         body: include_str!("../guide/media.md"),
     },
     Topic {
+        name: "functions",
+        summary: "Raytha Functions: JavaScript for HTTP requests, Liquid and content events",
+        body: include_str!("../guide/functions.md"),
+    },
+    Topic {
         name: "errors",
         summary: "Error codes, what they mean, and how to recover",
         body: include_str!("../guide/errors.md"),
