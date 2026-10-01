@@ -1,0 +1,42 @@
+{% assign c = Target.PublishedContent %}
+{% assign left = c.seats.Value | minus: c.seats_taken.Value %}
+{% assign pct = c.seats_taken.Value | times: 100 | divided_by: c.seats.Value %}
+<section class="article-hero">{% if c.banner.Value %}<img src="{{ c.banner.Value | attachment_redirect_url }}" alt="">{% endif %}</section>
+<div class="article-head" style="--accent:{{ c.accent.Value | default: '#b5482a' }}">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/classes">Classes</a><span>{{ c.format.Value | @format }}</span></nav>
+    <div class="chips" style="margin-bottom:18px"><span class="pill solid">{{ c.format.Value | @format }}</span><span class="pill">{{ c.level.Value | @level }}</span>{% if c.sessions.Value > 1 %}<span class="pill">{{ c.sessions.Value }} sessions</span>{% endif %}</div>
+    <h1 style="font-size:clamp(2.4rem,5.4vw,4.6rem);max-width:18ch">{{ Target.PrimaryField }}</h1>
+    <p class="lede">{{ c.tagline.Value }}</p>
+  </div>
+</div>
+<div class="wrap" style="padding-bottom:100px">
+  <div class="detail" style="padding-top:30px;grid-template-columns:1.2fr .8fr">
+    <div>
+      <div class="prose" style="margin-bottom:40px">{{ c.overview.Value }}</div>
+      {% if c.curriculum.Value.size > 0 %}
+      <h3 style="margin-bottom:24px">Session by session</h3>
+      <div class="tl">{% for s in c.curriculum.Value %}<div class="tl-i"><b>{{ s.week }}</b><h4>{{ s.topic }}</h4><p>You'll make: {{ s.outcome }}</p></div>{% endfor %}</div>
+      {% endif %}
+    </div>
+    <aside style="position:sticky;top:110px;--fill:{{ pct }}%">
+      <div class="panel">
+        <h4>Book your place</h4>
+        <div class="buy" style="margin-top:0"><span class="price">&pound;{{ c.price.Value }}</span><span class="pill solid">{% if left < 1 %}Full{% elsif c.is_open.Value %}{{ left }} left{% else %}Soon{% endif %}</span></div>
+        <div class="seats"><i style="background:var(--accent)"></i></div><div class="seats-t" style="margin-bottom:22px">{{ c.seats_taken.Value }} of {{ c.seats.Value }} seats taken</div>
+        <dl class="specs" style="grid-template-columns:1fr">
+          <div><dt>Starts</dt><dd>{{ c.starts_on.Value | date: "%A %e %B %Y" }}</dd></div>
+          <div><dt>Sessions</dt><dd>{{ c.sessions.Value }}</dd></div>
+        </dl>
+        <p style="margin:22px 0 14px"><b>Included</b></p>
+        <ul class="checks" style="margin-top:0">{% for i in c.includes.Value %}<li>{{ i | @includes }}</li>{% endfor %}</ul>
+        {% if left > 0 and c.is_open.Value %}<a class="btn fill" style="width:100%;justify-content:center;background:var(--accent);border-color:var(--accent)" href="mailto:classes@kilnandkettle.example?subject=Book%3A%20{{ Target.PrimaryField | url_encode }}">Reserve a seat</a>{% else %}<a class="btn" style="width:100%;justify-content:center" href="mailto:classes@kilnandkettle.example?subject=Waiting%20list%3A%20{{ Target.PrimaryField | url_encode }}">Join the waiting list</a>{% endif %}
+      </div>
+      {% if c.instructor %}
+      <div class="panel"><h4>Led by</h4>
+        <a class="person" href="{{ PathBase }}/{{ c.instructor.RoutePath }}">{% if c.instructor.PublishedContent.portrait.Value %}<img src="{{ c.instructor.PublishedContent.portrait.Value | attachment_redirect_url }}" alt="">{% endif %}<span><b>{{ c.instructor.PrimaryField }}</b><small>{{ c.instructor.PublishedContent.role.Value | @role }}</small></span></a>
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+</div>

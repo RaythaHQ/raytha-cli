@@ -1,0 +1,26 @@
+<section class="phero">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} notes from the studio</div>
+    <h1>The Journal: <em>kiln notes &amp; kettle talk</em></h1>
+    <p class="lede">What happened in the kiln, what went wrong in the glaze lab, and what we have been drinking. Written by whoever was holding a pen.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="wrap">
+    <div class="filters reveal" data-filters="#journal" data-key="cat">@@chips:category@@</div>
+    <div class="grid g3" id="journal">
+      {% for j in Target.Items %}
+        {% assign c = j.PublishedContent %}
+        <article class="jc reveal{% if forloop.first and c.is_featured.Value %} big{% endif %}" data-filter-item data-cat="{{ c.category.Value }}" style="--mood:{{ c.mood.Value | default: '#b5482a' }};--i:{{ forloop.index0 | modulo: 3 }}">
+          <div class="jc-img">{% if c.cover.Value %}<img loading="lazy" src="{{ c.cover.Value | attachment_redirect_url }}" alt="">{% endif %}</div>
+          <div class="cat">{{ c.category.Value | @category }} &middot; {{ c.reading_minutes.Value }} min</div>
+          <h3><a href="{{ PathBase }}/{{ j.RoutePath }}">{{ j.PrimaryField }}</a></h3>
+          <p>{{ c.excerpt.Value | truncate: 140 }}</p>
+          <small>{{ c.published_on.Value | date: "%B %e, %Y" }}{% if c.author %} &middot; {{ c.author.PrimaryField }}{% endif %}</small>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

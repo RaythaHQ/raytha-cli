@@ -1,0 +1,40 @@
+<section class="section{% if widget.settings.dark %} dark{% endif %}{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap split" style="grid-template-columns:.9fr 1.1fr;align-items:start">
+    <div class="reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      <div class="lede" style="font-size:1.1rem">{{ widget.settings.body }}</div>
+    </div>
+    <form class="panel reveal" data-enquiry action="{{ PathBase }}/enquiry" style="--i:2;margin:0">
+      <div class="grid g2" style="gap:16px">
+        <label>Your name<input name="name" required></label>
+        <label>Email<input type="email" name="email" required></label>
+      </div>
+      <label style="display:block;margin-top:16px">Topic
+        <select name="topic">{% for t in widget.settings.topics %}<option>{{ t.label }}</option>{% endfor %}</select>
+      </label>
+      <label style="display:block;margin-top:16px">Message<textarea name="message" rows="5" required></textarea></label>
+      <button class="btn fill" style="margin-top:22px" type="submit">{{ widget.settings.buttonText | default: "Send to the studio" }}</button>
+      <p data-status style="margin:16px 0 0;font-weight:600" role="status"></p>
+    </form>
+  </div>
+  <style>
+    form[data-enquiry] label{display:block;font:500 .75rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+    form[data-enquiry] input,form[data-enquiry] select,form[data-enquiry] textarea{display:block;width:100%;margin-top:8px;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);font:400 1rem var(--body);color:var(--ink)}
+    form[data-enquiry] input:focus,form[data-enquiry] select:focus,form[data-enquiry] textarea:focus{outline:none;border-color:var(--clay)}
+  </style>
+  <script>
+    document.querySelectorAll("form[data-enquiry]").forEach(function (f) {
+      f.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var s = f.querySelector("[data-status]"), body = {};
+        new FormData(f).forEach(function (v, k) { body[k] = v; });
+        s.textContent = "Sending...";
+        fetch(f.action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) { s.textContent = j.message || "Thank you."; s.style.color = "var(--moss)"; f.reset(); })
+          .catch(function () { s.textContent = "That did not send. Please email the studio directly."; s.style.color = "var(--clay)"; });
+      });
+    });
+  </script>
+</section>

@@ -1,0 +1,10 @@
+{"label": "Fire call to action", "fields": [
+{"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+{"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "highlight", "label": "Italic words", "fieldType": "single_line_text"},
+{"developerName": "body", "label": "Body", "fieldType": "long_text"},
+{"developerName": "primaryText", "label": "Primary button", "fieldType": "single_line_text"},
+{"developerName": "primaryUrl", "label": "Primary link", "fieldType": "single_line_text"},
+{"developerName": "secondaryText", "label": "Secondary button", "fieldType": "single_line_text"},
+{"developerName": "secondaryUrl", "label": "Secondary link", "fieldType": "single_line_text"}
+]}

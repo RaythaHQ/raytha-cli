@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if Target.PrimaryField %}{{ Target.PrimaryField | strip_html }} &middot; {% elsif Target.Title %}{{ Target.Title }} &middot; {% endif %}{{ CurrentOrganization.OrganizationName }}</title>
+  <meta name="description" content="A ceramics studio and tea room at Ashby Mill. Hand-thrown pottery, classes on the wheel, and a quiet pot of tea.">
+  <link rel="icon" type="image/svg+xml" href="{{ "@@media:favicon.svg@@" | attachment_public_url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,500..700,100,1;1,9..144,400..600,100,1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ "@@media:kiln.css@@" | attachment_public_url }}">
+  <link rel="alternate" type="text/plain" href="{{ PathBase }}/llms.txt" title="llms.txt">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="{{ PathBase }}/">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3c"/><stop offset="1" stop-color="#b5482a"/></linearGradient></defs><path d="M6 44V24C6 12 14 5 24 5s18 7 18 19v20z" fill="#231c17"/><path d="M13 44V26c0-8 4-13 11-13s11 5 11 13v18z" fill="url(#lg)"/><path d="M24 40c-5 0-7-3-7-6 0-4 4-6 4-11 4 3 10 6 10 12 0 3-3 5-7 5z" fill="#ffd27a"/></svg>
+      <span>Kiln &amp; Kettle<small>Ceramics &middot; Tea &middot; Ashby Mill</small></span>
+    </a>
+    {% assign menu = get_main_menu() %}
+    <ul class="nav" id="nav">
+      {% for item in menu.MenuItems %}
+        <li{% if item.MenuItems.size > 0 %} class="has-sub"{% endif %}>
+          <a href="{{ item.Url }}"{% if item.OpenInNewTab %} target="_blank" rel="noopener"{% endif %}>{{ item.Label }}</a>
+          {% if item.MenuItems.size > 0 %}<ul class="sub">{% for c in item.MenuItems %}<li><a href="{{ c.Url }}">{{ c.Label }}</a></li>{% endfor %}</ul>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    <a class="btn ink" href="{{ PathBase }}/classes">Book a class</a>
+    <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<main>{% renderbody %}</main>
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="color:#fff;margin-bottom:18px"><span>Kiln &amp; Kettle</span></div>
+        <p>A working pottery and tea room in a Victorian bobbin mill. Open to visitors seven days a week, fired by hand, brewed slowly.</p>
+        <p style="font-family:var(--mono);font-size:.85rem">Ashby Mill, Mill Lane<br>Hay-on-Wye HR3 5AD</p>
+      </div>
+      {% assign fm = get_menu("footer") %}
+      <div><h5>Explore</h5><ul>{% for item in fm.MenuItems %}{% if forloop.index0 < 5 %}<li><a href="{{ item.Url }}">{{ item.Label }}</a></li>{% endif %}{% endfor %}</ul></div>
+      <div><h5>The studio</h5><ul>{% for item in fm.MenuItems %}{% if forloop.index0 >= 5 %}<li><a href="{{ item.Url }}">{{ item.Label }}</a></li>{% endif %}{% endfor %}</ul></div>
+      <div>
+        <h5>This week</h5>
+        {% assign soon = get_content_items(ContentType="workshops", Filter="is_open eq 'true'", OrderBy="starts_on asc", PageNumber=1, PageSize=3) %}
+        <ul>{% for w in soon.Items %}<li><a href="{{ PathBase }}/{{ w.RoutePath }}">{{ w.PublishedContent.starts_on.Value | date: "%b %e" }} &middot; {{ w.PrimaryField }}</a></li>{% endfor %}</ul>
+        <p style="font-size:.85rem;margin-top:16px">For machines: <a href="{{ PathBase }}/llms.txt">llms.txt</a> &middot; <a href="{{ PathBase }}/pieces.json">pieces.json</a> &middot; <a href="{{ PathBase }}/sitemap.xml">sitemap</a></p>
+      </div>
+    </div>
+    <div class="big" aria-hidden="true">Kiln &amp; Kettle</div>
+    <div class="legal"><span>&copy; 2014&ndash;2026 {{ CurrentOrganization.OrganizationName }}. Every pot is made by a person.</span><span>Built entirely with the Raytha CLI</span></div>
+  </div>
+</footer>
+<script src="{{ "@@media:kiln.js@@" | attachment_public_url }}" defer></script>
+</body>
+</html>

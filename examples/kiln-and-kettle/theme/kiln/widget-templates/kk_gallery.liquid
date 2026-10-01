@@ -1,0 +1,11 @@
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap">
+    <div class="center reveal" style="margin-bottom:50px">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+    </div>
+    <div class="mosaic">
+      {% for g in widget.settings.images %}<figure class="m{{ forloop.index }} reveal" style="--i:{{ forloop.index0 }}"><img loading="lazy" src="{{ g.image }}" alt="{{ g.caption | escape }}"><figcaption>{{ g.caption }}</figcaption></figure>{% endfor %}
+    </div>
+  </div>
+</section>

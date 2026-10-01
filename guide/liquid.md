@@ -96,7 +96,7 @@ Pagination uses `?pageNumber=N`; the default list template has a complete pager 
 ## Functions Raytha adds
 
 ```liquid
-{% assign menu = get_main_menu() %}                               menu.MenuItems: Label, Url, OpenInNewTab, CssClassName, Children
+{% assign menu = get_main_menu() %}                               menu.MenuItems: Label, Url, OpenInNewTab, CssClassName, IsFirstItem, IsLastItem, MenuItems (the nested children)
 {% assign footer = get_menu("footer") %}                          by developer name
 {% assign posts = get_content_items(ContentType="posts", Filter="", OrderBy="CreationTime desc", PageNumber=1, PageSize=3) %}
 {% assign post = get_content_item_by_id(id) %}

@@ -1,0 +1,12 @@
+{"label": "Feature cards", "fields": [
+{"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+{"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "intro", "label": "Intro", "fieldType": "long_text"},
+{"developerName": "centered", "label": "Centre the heading", "fieldType": "checkbox"},
+{"developerName": "columns", "label": "Columns", "fieldType": "dropdown", "defaultValue": "3", "choices": [{"developerName": "2", "label": "2"}, {"developerName": "3", "label": "3"}, {"developerName": "4", "label": "4"}]},
+{"developerName": "items", "label": "Cards", "fieldType": "repeater", "subFields": [
+  {"developerName": "icon", "label": "Icon", "fieldType": "dropdown", "choices": [{"developerName": "flame", "label": "Flame"}, {"developerName": "wheel", "label": "Wheel"}, {"developerName": "leaf", "label": "Leaf"}, {"developerName": "heart", "label": "Heart"}, {"developerName": "truck", "label": "Delivery"}, {"developerName": "cup", "label": "Cup"}, {"developerName": "star", "label": "Star"}]},
+  {"developerName": "title", "label": "Title", "fieldType": "single_line_text", "isRequired": true},
+  {"developerName": "text", "label": "Text", "fieldType": "long_text"},
+  {"developerName": "color", "label": "Colour", "fieldType": "color"}]}
+]}

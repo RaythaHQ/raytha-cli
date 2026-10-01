@@ -1,0 +1,9 @@
+{
+  "label": "Kiln list: journal",
+  "isBaseLayout": false,
+  "parent": "kk_base_layout",
+  "allowAccessForNewContentTypes": false,
+  "contentTypes": [
+    "journal"
+  ]
+}

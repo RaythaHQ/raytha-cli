@@ -1,0 +1,8 @@
+{"label": "Process steps", "fields": [
+{"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+{"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "intro", "label": "Intro", "fieldType": "long_text"},
+{"developerName": "steps", "label": "Steps", "fieldType": "repeater", "subFields": [
+  {"developerName": "title", "label": "Title", "fieldType": "single_line_text", "isRequired": true},
+  {"developerName": "text", "label": "Text", "fieldType": "long_text"}]}
+]}

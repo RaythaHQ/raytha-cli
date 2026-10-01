@@ -1,0 +1,32 @@
+<section class="phero">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} pieces &middot; each made by a named person</div>
+    <h1>{{ Target.Label }}: <em>made to be used</em></h1>
+    <p class="lede">Mugs you will reach for every morning, bowls that carry a Sunday roast, vases that make three stems look deliberate. Everything here was thrown, built or cast at Ashby Mill and fired in our own kilns.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="wrap">
+    <div class="filters reveal" data-filters="#pieces" data-key="form">@@chips:form@@</div>
+    {% if Target.Items.size == 0 %}<div class="empty">Nothing in this view yet. Check back after the next firing.</div>{% endif %}
+    <div class="grid g4" id="pieces">
+      {% for p in Target.Items %}
+        {% assign c = p.PublishedContent %}
+        <article class="pc reveal{% unless c.in_stock.Value %} sold{% endunless %}" data-filter-item data-form="{{ c.form.Value }}" style="--i:{{ forloop.index0 | modulo: 4 }};--sw:{{ c.glaze_colour.Value | default: '#b5482a' }}">
+          <div class="pc-img">
+            {% if c.photo.Value %}<img loading="lazy" src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ p.PrimaryField | escape }}">{% endif %}
+            <div class="pc-tag"><span class="pill">{{ c.form.Value | @form }}</span>{% if c.is_featured.Value %}<span class="pill solid">Studio pick</span>{% endif %}</div>
+            {% unless c.in_stock.Value %}<span class="badge-sold">Sold</span>{% endunless %}
+          </div>
+          <div class="pc-body">
+            <h3><a href="{{ PathBase }}/{{ p.RoutePath }}">{{ p.PrimaryField }}</a></h3>
+            <p>{{ c.summary.Value | truncate: 92 }}</p>
+            <div class="pc-meta"><span class="swatch"><span class="dot"></span>{{ c.firing.Value | @firing }}</span><span class="price">&pound;{{ c.price.Value }}</span></div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

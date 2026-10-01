@@ -1,0 +1,7 @@
+<section class="section tight{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap {% if widget.settings.narrow %}narrow{% endif %} reveal">
+    {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+    {% if widget.settings.heading %}<h2>{{ widget.settings.heading }}</h2>{% endif %}
+    <div class="prose">{{ widget.settings.body }}</div>
+  </div>
+</section>

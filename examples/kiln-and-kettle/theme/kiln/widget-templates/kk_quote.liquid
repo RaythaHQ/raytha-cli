@@ -1,0 +1,7 @@
+<section class="section tinted{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap quote reveal">
+    {% if widget.settings.avatar %}<img class="av" src="{{ widget.settings.avatar }}" alt="">{% endif %}
+    <blockquote>{{ widget.settings.quote }}</blockquote>
+    <cite>{{ widget.settings.name }}{% if widget.settings.role %} &middot; {{ widget.settings.role }}{% endif %}</cite>
+  </div>
+</section>

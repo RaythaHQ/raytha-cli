@@ -1,0 +1,19 @@
+<section class="hero{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="sun"></div>
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h1>{{ widget.settings.headline }}{% if widget.settings.highlight %} <em>{{ widget.settings.highlight }}</em>{% endif %}{% if widget.settings.tail %} {{ widget.settings.tail }}{% endif %}</h1>
+      <p class="lede">{{ widget.settings.subheadline }}</p>
+      <div class="btn-row">
+        {% if widget.settings.primaryText %}<a class="btn fill" href="{{ widget.settings.primaryUrl }}">{{ widget.settings.primaryText }}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>{% endif %}
+        {% if widget.settings.secondaryText %}<a class="btn" href="{{ widget.settings.secondaryUrl }}">{{ widget.settings.secondaryText }}</a>{% endif %}
+      </div>
+      {% if widget.settings.stats.size > 0 %}<div class="hero-stats">{% for s in widget.settings.stats %}<div><b>{{ s.value }}</b><span>{{ s.label }}</span></div>{% endfor %}</div>{% endif %}
+    </div>
+    <div class="hero-art reveal" style="--i:2">
+      {% if widget.settings.image %}<img src="{{ widget.settings.image }}" alt="">{% endif %}
+      {% if widget.settings.badgeNumber %}<div class="hero-badge"><b>{{ widget.settings.badgeNumber }}</b><span>{{ widget.settings.badgeText }}</span></div>{% endif %}
+    </div>
+  </div>
+</section>

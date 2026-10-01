@@ -1,0 +1,5 @@
+{"label": "Kiln ticker", "fields": [
+{"developerName": "label", "label": "Accessible label", "fieldType": "single_line_text", "defaultValue": "Studio news"},
+{"developerName": "items", "label": "Items", "fieldType": "repeater", "subFields": [
+  {"developerName": "text", "label": "Text", "fieldType": "single_line_text", "isRequired": true}]}
+]}

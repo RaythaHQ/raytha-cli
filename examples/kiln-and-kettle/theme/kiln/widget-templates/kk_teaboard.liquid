@@ -1,0 +1,20 @@
+{% assign limit = widget.settings.limit | default: 12 %}
+{% assign list = get_content_items(ContentType="teas", Filter=widget.settings.filter, OrderBy="tea_type asc, title asc", PageSize=limit) %}
+<section class="section{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap">
+    <div class="board reveal">
+      <h2><small>{{ widget.settings.kicker | default: "Today's tea room" }}</small>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.note %}<p class="center" style="color:rgba(246,239,227,.7)">{{ widget.settings.note }}</p>{% endif %}
+      <div class="board-cols">
+        {% for t in list.Items %}
+          {% assign c = t.PublishedContent %}
+          <a class="tm" href="{{ PathBase }}/{{ t.RoutePath }}" style="--sw:{{ c.liquor_colour.Value }}">
+            <span class="sw"></span>
+            <b>{{ t.PrimaryField }}<small>{{ c.tea_type.Value | @tea_type }} &middot; {{ c.origin.Value | @origin }}{% if c.is_seasonal.Value %} &middot; seasonal{% endif %}</small></b>
+            <span class="p">{{ raytha_function("kiln_helpers", "money", amount=c.price_per_pot.Value) }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

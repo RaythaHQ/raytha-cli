@@ -1,0 +1,28 @@
+<section class="phero" style="background:#1f1914;color:var(--paper);border:0">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow" style="color:var(--mustard)">{{ Target.TotalCount }} teas &middot; poured into our own cups</div>
+    <h1>The tea room, <em style="color:var(--mustard)">pot by pot</em></h1>
+    <p class="lede" style="color:rgba(246,239,227,.8)">Every tea is chosen by Haruto and served in the piece he thinks suits it best. Tap one to see how to brew it at home.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="wrap">
+    <div class="filters reveal" data-filters="#teas" data-key="type">@@chips:tea_type@@</div>
+    <div class="grid g2" id="teas">
+      {% for t in Target.Items %}
+        {% assign c = t.PublishedContent %}
+        <article class="tc reveal" data-filter-item data-type="{{ c.tea_type.Value }}" style="--sw:{{ c.liquor_colour.Value | default: '#d9902f' }};--i:{{ forloop.index0 | modulo: 4 }}">
+          {% if c.image.Value %}<img loading="lazy" src="{{ c.image.Value | attachment_redirect_url }}" alt="{{ t.PrimaryField | escape }}">{% endif %}
+          <div>
+            <div class="chips" style="margin-bottom:8px"><span class="pill"><span class="dot"></span>{{ c.tea_type.Value | @tea_type }}</span>{% if c.is_seasonal.Value %}<span class="pill solid">Seasonal</span>{% endif %}</div>
+            <h3><a href="{{ PathBase }}/{{ t.RoutePath }}">{{ t.PrimaryField }}</a></h3>
+            <p>{{ c.tasting_notes.Value | truncate: 110 }}</p>
+            <span class="temp">{{ c.steep_temp_c.Value }}&deg;C &middot; {{ c.steep_seconds.Value }}s &middot; {{ raytha_function("kiln_helpers", "money", amount=c.price_per_pot.Value) }} a pot</span>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

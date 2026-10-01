@@ -1,0 +1,14 @@
+<section class="section dark{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap">
+    <div class="center reveal" style="margin-bottom:70px">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="steps">
+      {% for s in widget.settings.steps %}
+        <div class="step reveal" style="--i:{{ forloop.index0 }}"><div class="n">{{ forloop.index }}</div><h3>{{ s.title }}</h3><p>{{ s.text }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

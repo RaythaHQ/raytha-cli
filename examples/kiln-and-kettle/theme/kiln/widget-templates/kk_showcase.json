@@ -1,0 +1,15 @@
+{"label": "Content showcase", "fields": [
+{"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+{"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "intro", "label": "Intro", "fieldType": "long_text"},
+{"developerName": "contentType", "label": "Content type", "fieldType": "content_type", "isRequired": true, "defaultValue": "pieces"},
+{"developerName": "viewId", "label": "View", "fieldType": "view", "contentTypeField": "contentType", "description": "Optional saved view (filter and sort)."},
+{"developerName": "filter", "label": "Extra filter", "fieldType": "single_line_text", "description": "OData filter, for example is_featured eq 'true'."},
+{"developerName": "orderBy", "label": "Order by", "fieldType": "single_line_text", "defaultValue": "CreationTime desc"},
+{"developerName": "limit", "label": "How many", "fieldType": "number", "defaultValue": 8},
+{"developerName": "layout", "label": "Layout", "fieldType": "dropdown", "defaultValue": "rail", "choices": [{"developerName": "rail", "label": "Scrolling rail"}, {"developerName": "grid", "label": "Grid"}]},
+{"developerName": "columns", "label": "Grid columns", "fieldType": "dropdown", "defaultValue": "4", "choices": [{"developerName": "2", "label": "2"}, {"developerName": "3", "label": "3"}, {"developerName": "4", "label": "4"}]},
+{"developerName": "dark", "label": "Dark background", "fieldType": "checkbox"},
+{"developerName": "ctaText", "label": "Button text", "fieldType": "single_line_text"},
+{"developerName": "ctaUrl", "label": "Button link", "fieldType": "single_line_text"}
+]}

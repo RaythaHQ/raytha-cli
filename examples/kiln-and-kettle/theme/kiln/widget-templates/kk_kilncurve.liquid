@@ -1,0 +1,40 @@
+<section class="section dark{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap">
+    <div class="split" style="grid-template-columns:.8fr 1.2fr;gap:60px">
+      <div class="reveal">
+        {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+        <h2>{{ widget.settings.heading }}</h2>
+        <div class="lede">{{ widget.settings.body }}</div>
+      </div>
+      <div class="curve" data-kc>
+        <div class="readout"><div><b data-peak>0</b><span>peak &deg;C</span></div><div><b data-hours>0</b><span>hours</span></div><div><b>{{ widget.settings.stage | default: "Cone 10" }}</b><span>target</span></div></div>
+        <svg viewBox="0 0 640 300" role="img" aria-label="Kiln temperature curve">
+          <defs>
+            <linearGradient id="kg" x1="0" x2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset=".6" stop-color="#ff8a3c"/><stop offset="1" stop-color="#ff4a1c"/></linearGradient>
+            <linearGradient id="ka" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff8a3c" stop-opacity=".35"/><stop offset="1" stop-color="#ff8a3c" stop-opacity="0"/></linearGradient>
+          </defs>
+          <g class="grid"></g><path class="area"></path><path class="line"></path><g class="pts"></g>
+        </svg>
+        <script type="application/json" data-pts>[{% for s in widget.settings.schedule %}{"h":{{ s.hour }},"t":{{ s.temperature }},"n":{{ s.note | json }}}{% unless forloop.last %},{% endunless %}{% endfor %}]</script>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var box=document.currentScript.parentNode.querySelector("[data-kc]"); if(!box) return;
+    var pts=JSON.parse(box.querySelector("[data-pts]").textContent), W=640,H=300,L=44,B=34,T=14,R=10;
+    var maxH=Math.max.apply(null,pts.map(function(p){return p.h})), maxT=Math.max(1400,Math.max.apply(null,pts.map(function(p){return p.t})));
+    var x=function(h){return L+(W-L-R)*h/maxH}, y=function(t){return H-B-(H-B-T)*t/maxT};
+    var d=pts.map(function(p,i){return(i?"L":"M")+x(p.h).toFixed(1)+","+y(p.t).toFixed(1)}).join(" ");
+    var NS="http://www.w3.org/2000/svg", svg=box.querySelector("svg"), line=svg.querySelector(".line"), area=svg.querySelector(".area");
+    line.setAttribute("d",d); area.setAttribute("d",d+" L"+x(maxH)+","+(H-B)+" L"+x(0)+","+(H-B)+" Z");
+    var len=line.getTotalLength(); line.style.setProperty("--len",len);
+    var g=svg.querySelector(".grid");
+    [0,400,800,1200].forEach(function(t){var l=document.createElementNS(NS,"path");l.setAttribute("d","M"+L+","+y(t)+" H"+(W-R));l.setAttribute("stroke","rgba(246,239,227,.12)");g.appendChild(l);var tx=document.createElementNS(NS,"text");tx.setAttribute("x",4);tx.setAttribute("y",y(t)+4);tx.textContent=t+"°";g.appendChild(tx)});
+    var pg=svg.querySelector(".pts");
+    pts.forEach(function(p){var c=document.createElementNS(NS,"circle");c.setAttribute("cx",x(p.h));c.setAttribute("cy",y(p.t));c.setAttribute("r",5);c.setAttribute("fill","#ffd27a");var tt=document.createElementNS(NS,"title");tt.textContent=p.h+"h · "+p.t+"°C · "+p.n;c.appendChild(tt);pg.appendChild(c)});
+    box.querySelector("[data-peak]").textContent=Math.max.apply(null,pts.map(function(p){return p.t})).toLocaleString();
+    box.querySelector("[data-hours]").textContent=maxH;
+  })();
+  </script>
+</section>

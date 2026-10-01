@@ -226,12 +226,69 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
 }
 
 /// Asks Raytha to parse Liquid without saving it. Fails with the parser's message, line and column.
+///
+/// The server's validator does not know `{% renderbody %}`, so a base layout always reports
+/// "Unknown tag 'renderbody'". The tag is blanked with spaces first, which keeps every line and column.
 pub fn validate(client: &Client, content: &str) -> Result<()> {
     client.post(
         &["webtemplates", "validate"],
-        Some(&json!({ "content": content })),
+        Some(&json!({ "content": blank_renderbody(content) })),
     )?;
     Ok(())
+}
+
+/// Replaces each `{% renderbody %}` tag with spaces (and keeps its newlines) so positions do not move.
+pub fn blank_renderbody(content: &str) -> String {
+    let bytes = content.as_bytes();
+    let mut out = String::with_capacity(content.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i..].starts_with(b"{%") {
+            let rest = &content[i + 2..];
+            let trimmed = rest.trim_start();
+            let after_ws = rest.len() - trimmed.len();
+            if trimmed.len() >= 10 && trimmed[..10].eq_ignore_ascii_case("renderbody") {
+                let tail = &trimmed[10..];
+                let tail_trim = tail.trim_start();
+                if tail_trim.starts_with("%}") {
+                    let end = i + 2 + after_ws + 10 + (tail.len() - tail_trim.len()) + 2;
+                    out.extend(
+                        content[i..end]
+                            .chars()
+                            .map(|c| if c == '\n' { '\n' } else { ' ' }),
+                    );
+                    i = end;
+                    continue;
+                }
+            }
+        }
+        let ch = content[i..].chars().next().unwrap_or(' ');
+        out.push(ch);
+        i += ch.len_utf8();
+    }
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::blank_renderbody;
+
+    #[test]
+    fn renderbody_tags_are_blanked_without_moving_positions() {
+        let src = "<main>{% renderbody %}</main>\n{%renderbody%}x{{ y }}";
+        let out = blank_renderbody(src);
+        assert_eq!(out.len(), src.len());
+        assert!(!out.to_lowercase().contains("renderbody"));
+        assert!(out.starts_with("<main>"));
+        assert!(out.contains("</main>\n"));
+        assert!(out.ends_with("x{{ y }}"));
+    }
+
+    #[test]
+    fn other_tags_are_left_alone() {
+        let src = "{% if a %}{% renderbodyx %}{% endif %}";
+        assert_eq!(blank_renderbody(src), src);
+    }
 }
 
 fn html_title(html: &str) -> Option<String> {

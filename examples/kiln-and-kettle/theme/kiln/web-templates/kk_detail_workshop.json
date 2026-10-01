@@ -1,0 +1,9 @@
+{
+  "label": "Kiln detail: workshop",
+  "isBaseLayout": false,
+  "parent": "kk_base_layout",
+  "allowAccessForNewContentTypes": false,
+  "contentTypes": [
+    "workshops"
+  ]
+}

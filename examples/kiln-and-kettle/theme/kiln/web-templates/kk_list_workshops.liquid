@@ -1,0 +1,35 @@
+<section class="phero">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} sessions on the calendar</div>
+    <h1>Get your hands <em>in the clay</em></h1>
+    <p class="lede">Evening courses, weekend intensives, fire nights and tea pairings. No experience needed unless it says so. Aprons, clay and biscuits are included.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="wrap">
+    <div class="filters reveal" data-filters="#classes" data-key="level">@@chips:level@@</div>
+    <div id="classes">
+      {% for w in Target.Items %}
+        {% assign c = w.PublishedContent %}
+        {% assign left = c.seats.Value | minus: c.seats_taken.Value %}
+        {% assign pct = c.seats_taken.Value | times: 100 | divided_by: c.seats.Value %}
+        <article class="ws reveal" data-filter-item data-level="{{ c.level.Value }}" style="--accent:{{ c.accent.Value | default: '#b5482a' }};--fill:{{ pct }}%;--i:{{ forloop.index0 | modulo: 4 }}">
+          <div class="date"><div><b>{{ c.starts_on.Value | date: "%e" }}</b><span>{{ c.starts_on.Value | date: "%b" }}</span></div></div>
+          <div>
+            <div class="chips" style="margin-bottom:10px"><span class="pill">{{ c.format.Value | @format }}</span><span class="pill">{{ c.level.Value | @level }}</span>{% if c.sessions.Value > 1 %}<span class="pill">{{ c.sessions.Value }} sessions</span>{% endif %}</div>
+            <h3><a href="{{ PathBase }}/{{ w.RoutePath }}">{{ w.PrimaryField }}</a></h3>
+            <p>{{ c.tagline.Value }}</p>
+            {% if c.instructor %}<small style="color:var(--ink-3)">Led by {{ c.instructor.PrimaryField }}</small>{% endif %}
+          </div>
+          <div class="ws-side">
+            <span class="price">&pound;{{ c.price.Value }}</span>
+            <div class="seats"><i></i></div>
+            <div class="seats-t">{% if left < 1 %}Fully booked{% elsif c.is_open.Value %}{{ left }} of {{ c.seats.Value }} seats left{% else %}Booking opens soon{% endif %}</div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

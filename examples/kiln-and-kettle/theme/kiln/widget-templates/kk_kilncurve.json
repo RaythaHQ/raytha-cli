@@ -1,0 +1,10 @@
+{"label": "Kiln firing curve", "fields": [
+{"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+{"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "body", "label": "Body", "fieldType": "wysiwyg"},
+{"developerName": "stage", "label": "Target label", "fieldType": "single_line_text", "defaultValue": "Cone 10"},
+{"developerName": "schedule", "label": "Firing schedule", "fieldType": "repeater", "subFields": [
+  {"developerName": "hour", "label": "Hour", "fieldType": "number", "isRequired": true},
+  {"developerName": "temperature", "label": "Temperature (C)", "fieldType": "number", "isRequired": true},
+  {"developerName": "note", "label": "Note", "fieldType": "single_line_text"}]}
+]}

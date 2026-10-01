@@ -1,0 +1,5 @@
+<div class="marquee" aria-label="{{ widget.settings.label | default: 'Studio news' | escape }}">
+  <div class="track">
+    {% for pass in (1..2) %}<span>{% for i in widget.settings.items %}{{ i.text }}{% unless forloop.last %}<i style="font-style:normal;color:var(--mustard)">&#10042;</i>{% endunless %}{% endfor %}</span>{% endfor %}
+  </div>
+</div>

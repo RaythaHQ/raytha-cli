@@ -1,0 +1,19 @@
+<section class="section tinted{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap">
+    <div class="center reveal" style="margin-bottom:56px">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="grid g3">
+      {% for t in widget.settings.tiers %}
+      <div class="feat reveal" style="--i:{{ forloop.index0 }};{% if t.featured %}background:var(--ink);color:var(--paper);transform:translateY(-14px){% endif %}">
+        <h3>{{ t.name }}</h3>
+        <div class="price" style="font-size:2.6rem;margin:6px 0 14px;{% if t.featured %}color:var(--mustard){% endif %}">{{ t.price }}</div>
+        <p style="{% if t.featured %}color:rgba(246,239,227,.8){% endif %}">{{ t.blurb }}</p>
+        <div style="margin-top:18px;{% if t.featured %}color:rgba(246,239,227,.9){% endif %}">{{ t.features }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

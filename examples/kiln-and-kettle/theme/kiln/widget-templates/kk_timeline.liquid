@@ -1,0 +1,12 @@
+<section class="section{% if widget.settings.tinted %} tinted{% endif %}{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap split" style="grid-template-columns:.8fr 1.2fr;align-items:start">
+    <div class="reveal" style="position:sticky;top:120px">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      {% if widget.settings.intro %}<p class="lede">{{ widget.settings.intro }}</p>{% endif %}
+    </div>
+    <div class="tl">
+      {% for i in widget.settings.items %}<div class="tl-i reveal"><b>{{ i.when }}</b><h4>{{ i.title }}</h4><p>{{ i.text }}</p></div>{% endfor %}
+    </div>
+  </div>
+</section>

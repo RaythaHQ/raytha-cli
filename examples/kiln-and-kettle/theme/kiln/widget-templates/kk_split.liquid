@@ -1,0 +1,12 @@
+<section class="section{% if widget.settings.dark %} dark{% elsif widget.settings.tinted %} tinted{% endif %}{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="--accent:{{ widget.settings.accent | default: '#b5482a' }}">
+  <div class="wrap split{% if widget.settings.flip %} flip{% endif %}">
+    <div class="split-art reveal">{% if widget.settings.image %}<img src="{{ widget.settings.image }}" alt="">{% endif %}</div>
+    <div class="reveal" style="--i:2">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      <div class="lede" style="font-size:1.1rem">{{ widget.settings.body }}</div>
+      {% if widget.settings.bullets.size > 0 %}<ul class="checks">{% for b in widget.settings.bullets %}<li>{{ b.text }}</li>{% endfor %}</ul>{% endif %}
+      {% if widget.settings.buttonText %}<a class="btn {% if widget.settings.dark %}{% else %}ink{% endif %}" href="{{ widget.settings.buttonUrl }}">{{ widget.settings.buttonText }} &rarr;</a>{% endif %}
+    </div>
+  </div>
+</section>

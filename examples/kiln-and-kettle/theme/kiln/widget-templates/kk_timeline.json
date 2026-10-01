@@ -1,0 +1,10 @@
+{"label": "Vertical timeline", "fields": [
+{"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+{"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "intro", "label": "Intro", "fieldType": "long_text"},
+{"developerName": "tinted", "label": "Tinted background", "fieldType": "checkbox"},
+{"developerName": "items", "label": "Moments", "fieldType": "repeater", "subFields": [
+  {"developerName": "when", "label": "When", "fieldType": "single_line_text", "isRequired": true},
+  {"developerName": "title", "label": "Title", "fieldType": "single_line_text"},
+  {"developerName": "text", "label": "Text", "fieldType": "long_text"}]}
+]}

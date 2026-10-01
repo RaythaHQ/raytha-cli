@@ -1,0 +1,7 @@
+<section class="section tight{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %} style="--accent:{{ widget.settings.accent | default: '#b5482a' }}">
+  <div class="wrap">
+    <div class="stats">
+      {% for s in widget.settings.items %}<div class="stat reveal" style="--i:{{ forloop.index0 }}"><b><span data-count="{{ s.value }}">0</span>{{ s.suffix }}</b><span>{{ s.label }}</span></div>{% endfor %}
+    </div>
+  </div>
+</section>

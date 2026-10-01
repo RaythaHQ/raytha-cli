@@ -1,0 +1,7 @@
+{"label": "Tea menu board", "fields": [
+{"developerName": "kicker", "label": "Small heading", "fieldType": "single_line_text", "defaultValue": "Today's tea room"},
+{"developerName": "heading", "label": "Heading", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "note", "label": "Note", "fieldType": "single_line_text"},
+{"developerName": "filter", "label": "Extra filter", "fieldType": "single_line_text"},
+{"developerName": "limit", "label": "How many", "fieldType": "number", "defaultValue": 12}
+]}

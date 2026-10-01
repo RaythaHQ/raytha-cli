@@ -1,0 +1,32 @@
+{% assign c = Target.PublishedContent %}
+{% assign cup = c.served_in %}
+<div class="wrap">
+  <div class="detail" style="--sw:{{ c.liquor_colour.Value | default: '#d9902f' }}">
+    <div class="d-img reveal">{% if c.image.Value %}<img src="{{ c.image.Value | attachment_redirect_url }}" alt="{{ Target.PrimaryField | escape }}" style="aspect-ratio:4/3">{% endif %}</div>
+    <div>
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/tea-room">Tea room</a><span>{{ c.tea_type.Value | @tea_type }}</span></nav>
+      <div class="chips" style="margin-bottom:18px"><span class="pill"><span class="dot"></span>{{ c.tea_type.Value | @tea_type }}</span><span class="pill">{{ c.origin.Value | @origin }}</span>{% if c.is_seasonal.Value %}<span class="pill solid">Seasonal</span>{% endif %}</div>
+      <h1 style="font-size:clamp(2.2rem,4.4vw,3.6rem)">{{ Target.PrimaryField }}</h1>
+      <p class="lede">{{ c.tasting_notes.Value }}</p>
+      <div class="chips" style="margin:6px 0 28px">{% for n in c.flavour_notes.Value %}<span class="pill">{{ n | @flavour_notes }}</span>{% endfor %}</div>
+      <div class="panel" data-timer>
+        <h4>Steep timer &middot; {{ c.steep_temp_c.Value }}&deg;C water</h4>
+        <div class="timer">
+          <div class="dial"><svg viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="65"/><circle class="fg" cx="75" cy="75" r="65"/></svg><output>0:00</output></div>
+          <div>
+            <div class="inf">{% for i in c.infusions.Value %}<button type="button" data-s="{{ i.seconds }}">{{ i.infusion }}</button>{% endfor %}</div>
+            <button type="button" class="btn ink" data-start style="padding:12px 22px">Start steeping</button>
+          </div>
+        </div>
+        <ol class="care" style="margin-top:28px">{% for i in c.infusions.Value %}<li><b>{{ i.infusion }} &middot; {{ i.seconds }}s</b><p>{{ i.note }}</p></li>{% endfor %}</ol>
+      </div>
+      <div class="panel prose" style="font-size:1rem">{{ c.brewing_guide.Value }}</div>
+      <div class="buy"><span class="price">{{ raytha_function("kiln_helpers", "money", amount=c.price_per_pot.Value) }} <small style="font:400 .9rem var(--body);color:var(--ink-3)">per pot</small></span><a class="btn fill" href="{{ PathBase }}/visit">Come and taste it</a></div>
+      {% if cup %}
+      <div class="panel"><h4>Served in</h4>
+        <a class="person" href="{{ PathBase }}/{{ cup.RoutePath }}">{% if cup.PublishedContent.photo.Value %}<img src="{{ cup.PublishedContent.photo.Value | attachment_redirect_url }}" alt="">{% endif %}<span><b>{{ cup.PrimaryField }}</b><small>&pound;{{ cup.PublishedContent.price.Value }} &middot; {{ cup.PublishedContent.glaze.Value }}</small></span></a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

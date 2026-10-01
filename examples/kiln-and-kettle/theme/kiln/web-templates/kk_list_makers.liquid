@@ -1,0 +1,24 @@
+<section class="phero">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ Target.Label }}</span></nav>
+    <div class="eyebrow">{{ Target.TotalCount }} people, one very warm building</div>
+    <h1>The hands behind <em>every pot</em></h1>
+    <p class="lede">Potters, a glaze chemist, a tea master and an apprentice with strong opinions about firewood. Meet the people who make, teach and pour.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="wrap">
+    <div class="filters reveal" data-filters="#makers" data-key="role">@@chips:role@@</div>
+    <div class="grid g4" id="makers">
+      {% for m in Target.Items %}
+        {% assign c = m.PublishedContent %}
+        <article class="mk reveal" data-filter-item data-role="{{ c.role.Value }}" style="--i:{{ forloop.index0 | modulo: 4 }}">
+          <div class="mk-img">{% if c.portrait.Value %}<img loading="lazy" src="{{ c.portrait.Value | attachment_redirect_url }}" alt="{{ m.PrimaryField | escape }}">{% endif %}</div>
+          <h3><a href="{{ PathBase }}/{{ m.RoutePath }}">{{ m.PrimaryField }}</a></h3>
+          <small>{{ c.role.Value | @role }}</small>
+        </article>
+      {% endfor %}
+    </div>
+    @@pager@@
+  </div>
+</section>

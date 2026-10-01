@@ -1,0 +1,57 @@
+{% assign ct = widget.settings.contentType | default: "pieces" %}
+{% assign limit = widget.settings.limit | default: 8 %}
+{% assign order = widget.settings.orderBy | default: "CreationTime desc" %}
+{% if widget.settings.viewId %}
+  {% assign list = get_content_items(ContentType=ct, ViewId=widget.settings.viewId, Filter=widget.settings.filter, OrderBy=order, PageSize=limit) %}
+{% else %}
+  {% assign list = get_content_items(ContentType=ct, Filter=widget.settings.filter, OrderBy=order, PageSize=limit) %}
+{% endif %}
+{% assign layout = widget.settings.layout | default: "rail" %}
+<section class="section{% if widget.settings.dark %} dark{% endif %}{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap">
+    <div class="head reveal">
+      <div>
+        {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+        <h2>{{ widget.settings.heading }}</h2>
+      </div>
+      <div>
+        {% if widget.settings.intro %}<p class="lede" style="margin-bottom:18px">{{ widget.settings.intro }}</p>{% endif %}
+        {% if widget.settings.ctaText %}<a class="btn" href="{{ widget.settings.ctaUrl }}">{{ widget.settings.ctaText }} &rarr;</a>{% endif %}
+      </div>
+    </div>
+    {% if layout == "rail" %}<div class="rail">{% else %}<div class="grid g{{ widget.settings.columns | default: '4' }}">{% endif %}
+    {% for e in list.Items %}
+      {% assign c = e.PublishedContent %}
+      {% case ct %}
+      {% when "pieces" %}
+        <article class="pc reveal{% unless c.in_stock.Value %} sold{% endunless %}" style="--i:{{ forloop.index0 | modulo: 4 }};--sw:{{ c.glaze_colour.Value }}">
+          <div class="pc-img">{% if c.photo.Value %}<img loading="lazy" src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ e.PrimaryField | escape }}">{% endif %}<div class="pc-tag"><span class="pill">{{ c.form.Value | @form }}</span></div>{% unless c.in_stock.Value %}<span class="badge-sold">Sold</span>{% endunless %}</div>
+          <div class="pc-body"><h3><a href="{{ PathBase }}/{{ e.RoutePath }}">{{ e.PrimaryField }}</a></h3><p>{{ c.summary.Value | truncate: 80 }}</p><div class="pc-meta"><span class="swatch"><span class="dot"></span>{{ c.firing.Value | @firing }}</span><span class="price">&pound;{{ c.price.Value }}</span></div></div>
+        </article>
+      {% when "makers" %}
+        <article class="mk reveal" style="--i:{{ forloop.index0 | modulo: 4 }}">
+          <div class="mk-img">{% if c.portrait.Value %}<img loading="lazy" src="{{ c.portrait.Value | attachment_redirect_url }}" alt="">{% endif %}</div>
+          <h3><a href="{{ PathBase }}/{{ e.RoutePath }}">{{ e.PrimaryField }}</a></h3><small>{{ c.role.Value | @role }}</small>
+        </article>
+      {% when "teas" %}
+        <article class="tc reveal" style="--sw:{{ c.liquor_colour.Value }};--i:{{ forloop.index0 | modulo: 4 }}">
+          {% if c.image.Value %}<img loading="lazy" src="{{ c.image.Value | attachment_redirect_url }}" alt="">{% endif %}
+          <div><div class="chips" style="margin-bottom:8px"><span class="pill"><span class="dot"></span>{{ c.tea_type.Value | @tea_type }}</span></div><h3><a href="{{ PathBase }}/{{ e.RoutePath }}">{{ e.PrimaryField }}</a></h3><p>{{ c.tasting_notes.Value | truncate: 80 }}</p></div>
+        </article>
+      {% when "journal" %}
+        <article class="jc reveal" style="--mood:{{ c.mood.Value }};--i:{{ forloop.index0 | modulo: 3 }}">
+          <div class="jc-img">{% if c.cover.Value %}<img loading="lazy" src="{{ c.cover.Value | attachment_redirect_url }}" alt="">{% endif %}</div>
+          <div class="cat">{{ c.category.Value | @category }} &middot; {{ c.reading_minutes.Value }} min</div>
+          <h3><a href="{{ PathBase }}/{{ e.RoutePath }}">{{ e.PrimaryField }}</a></h3><p>{{ c.excerpt.Value | truncate: 110 }}</p>
+        </article>
+      {% when "workshops" %}
+        <article class="ws reveal" style="--accent:{{ c.accent.Value }}">
+          <div class="date"><div><b>{{ c.starts_on.Value | date: "%e" }}</b><span>{{ c.starts_on.Value | date: "%b" }}</span></div></div>
+          <div><div class="chips" style="margin-bottom:8px"><span class="pill">{{ c.format.Value | @format }}</span></div><h3><a href="{{ PathBase }}/{{ e.RoutePath }}">{{ e.PrimaryField }}</a></h3><p style="margin:0">{{ c.tagline.Value }}</p></div>
+          <div class="ws-side"><span class="price">&pound;{{ c.price.Value }}</span></div>
+        </article>
+      {% endcase %}
+    {% endfor %}
+    </div>
+  </div>
+</section>

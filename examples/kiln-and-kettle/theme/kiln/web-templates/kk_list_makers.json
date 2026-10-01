@@ -1,0 +1,9 @@
+{
+  "label": "Kiln list: makers",
+  "isBaseLayout": false,
+  "parent": "kk_base_layout",
+  "allowAccessForNewContentTypes": false,
+  "contentTypes": [
+    "makers"
+  ]
+}

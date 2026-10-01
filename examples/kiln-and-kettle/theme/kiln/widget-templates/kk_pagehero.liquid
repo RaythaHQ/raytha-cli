@@ -1,0 +1,9 @@
+<section class="phero{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}{% if widget.settings.image %} style="padding-bottom:0"{% endif %}>
+  <div class="wrap reveal">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><span>{{ widget.settings.crumb }}</span></nav>
+    {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+    <h1>{{ widget.settings.heading }}{% if widget.settings.highlight %} <em>{{ widget.settings.highlight }}</em>{% endif %}</h1>
+    <p class="lede">{{ widget.settings.lede }}</p>
+  </div>
+  {% if widget.settings.image %}<div class="wrap" style="margin-top:50px"><div style="border-radius:var(--r) var(--r) 0 0;overflow:hidden;height:min(46vh,420px)"><img src="{{ widget.settings.image }}" alt="" style="width:100%;height:100%;object-fit:cover"></div></div>{% endif %}
+</section>

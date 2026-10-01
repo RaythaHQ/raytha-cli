@@ -1,0 +1,7 @@
+{"label": "Counting stats", "fields": [
+{"developerName": "accent", "label": "Number colour", "fieldType": "color", "defaultValue": "#b5482a"},
+{"developerName": "items", "label": "Stats", "fieldType": "repeater", "subFields": [
+  {"developerName": "value", "label": "Number", "fieldType": "number", "isRequired": true},
+  {"developerName": "suffix", "label": "Suffix", "fieldType": "single_line_text"},
+  {"developerName": "label", "label": "Label", "fieldType": "single_line_text"}]}
+]}

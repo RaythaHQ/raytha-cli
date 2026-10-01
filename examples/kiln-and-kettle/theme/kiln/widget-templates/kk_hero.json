@@ -1,0 +1,17 @@
+{"label": "Kiln hero", "fields": [
+{"developerName": "eyebrow", "label": "Eyebrow", "fieldType": "single_line_text"},
+{"developerName": "headline", "label": "Headline", "fieldType": "single_line_text", "isRequired": true},
+{"developerName": "highlight", "label": "Italic words", "fieldType": "single_line_text"},
+{"developerName": "tail", "label": "After the italic words", "fieldType": "single_line_text"},
+{"developerName": "subheadline", "label": "Sub-headline", "fieldType": "long_text"},
+{"developerName": "image", "label": "Arch image", "fieldType": "image"},
+{"developerName": "badgeNumber", "label": "Badge number", "fieldType": "single_line_text"},
+{"developerName": "badgeText", "label": "Badge text", "fieldType": "single_line_text"},
+{"developerName": "primaryText", "label": "Primary button", "fieldType": "single_line_text"},
+{"developerName": "primaryUrl", "label": "Primary link", "fieldType": "single_line_text"},
+{"developerName": "secondaryText", "label": "Secondary button", "fieldType": "single_line_text"},
+{"developerName": "secondaryUrl", "label": "Secondary link", "fieldType": "single_line_text"},
+{"developerName": "stats", "label": "Stat strip", "fieldType": "repeater", "subFields": [
+  {"developerName": "value", "label": "Value", "fieldType": "single_line_text", "isRequired": true},
+  {"developerName": "label", "label": "Label", "fieldType": "single_line_text"}]}
+]}

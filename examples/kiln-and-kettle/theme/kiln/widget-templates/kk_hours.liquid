@@ -1,0 +1,24 @@
+<section class="section tinted{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap split">
+    <div class="reveal">
+      {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+      <h2>{{ widget.settings.heading }}</h2>
+      <p class="lede" style="white-space:pre-line">{{ widget.settings.address }}</p>
+      <table class="hours" style="margin-top:30px">
+        {% for h in widget.settings.hours %}<tr data-dow="{{ h.dow }}"><td>{{ h.day }}</td><td>{{ h.open }}</td></tr>{% endfor %}
+      </table>
+      {% if widget.settings.note %}<p style="margin-top:20px;color:var(--ink-2)">{{ widget.settings.note }}</p>{% endif %}
+    </div>
+    <div class="map reveal" style="--i:2">
+      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-label="Map of Ashby Mill">
+        <rect width="400" height="300" fill="#e6d8bf"/>
+        <path d="M-10 220 C80 190 120 240 200 210 S330 160 410 190 V310 H-10z" fill="#bcd2c9"/>
+        <path d="M-10 60 L410 120" stroke="#fff" stroke-width="14" stroke-linecap="round"/><path d="M130 -10 L190 310" stroke="#fff" stroke-width="10"/><path d="M-10 150 Q150 130 410 70" stroke="#f6efe3" stroke-width="6" fill="none"/>
+        {% for r in (0..5) %}<rect x="{{ 220 | plus: r | times: 14 | modulo: 380 }}" y="{{ 20 | plus: r | times: 9 }}" width="26" height="18" rx="3" fill="#d1bf9d"/>{% endfor %}
+        <rect x="236" y="104" width="64" height="36" rx="4" fill="#231c17"/><rect x="246" y="112" width="12" height="28" fill="#ff8a3c"/>
+        <g transform="translate(268 82)"><path d="M0 0c-10 0-16 7-16 15 0 12 16 28 16 28s16-16 16-28c0-8-6-15-16-15z" fill="#b5482a" stroke="#fff" stroke-width="3"/><circle cy="15" r="6" fill="#fff"/></g>
+        <text x="236" y="162" font-family="DM Mono, monospace" font-size="11" fill="#231c17" letter-spacing="1.5">ASHBY MILL</text>
+      </svg>
+    </div>
+  </div>
+</section>

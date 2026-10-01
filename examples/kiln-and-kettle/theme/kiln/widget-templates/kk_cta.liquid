@@ -1,0 +1,9 @@
+<section class="cta{% if widget.css_class %} {{ widget.css_class }}{% endif %}" {% if widget.html_id %}id="{{ widget.html_id }}"{% endif %}>
+  <div class="wrap reveal">
+    {% if widget.settings.eyebrow %}<div class="eyebrow">{{ widget.settings.eyebrow }}</div>{% endif %}
+    <h2>{{ widget.settings.heading }}{% if widget.settings.highlight %} <em>{{ widget.settings.highlight }}</em>{% endif %}</h2>
+    {% if widget.settings.body %}<p>{{ widget.settings.body }}</p>{% endif %}
+    {% if widget.settings.primaryText %}<a class="btn fill" href="{{ widget.settings.primaryUrl }}">{{ widget.settings.primaryText }}</a>{% endif %}
+    {% if widget.settings.secondaryText %} <a class="btn" href="{{ widget.settings.secondaryUrl }}">{{ widget.settings.secondaryText }}</a>{% endif %}
+  </div>
+</section>

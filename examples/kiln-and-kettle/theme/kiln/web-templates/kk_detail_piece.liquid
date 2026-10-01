@@ -1,0 +1,51 @@
+{% assign c = Target.PublishedContent %}
+{% assign maker = c.maker %}
+<div class="wrap">
+  <div class="detail" style="--sw:{{ c.glaze_colour.Value | default: '#b5482a' }}">
+    <div class="d-img reveal">{% if c.photo.Value %}<img src="{{ c.photo.Value | attachment_redirect_url }}" alt="{{ Target.PrimaryField | escape }}">{% endif %}</div>
+    <div>
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/shop">Shop</a><span>{{ c.form.Value | @form }}</span></nav>
+      <div class="chips" style="margin-bottom:18px"><span class="pill">{{ c.firing.Value | @firing }}</span><span class="pill">{{ c.clay_body.Value | @clay_body }}</span>{% if c.is_featured.Value %}<span class="pill solid">Studio pick</span>{% endif %}</div>
+      <h1 style="font-size:clamp(2.2rem,4.4vw,3.6rem)">{{ Target.PrimaryField }}</h1>
+      <p class="lede">{{ c.summary.Value }}</p>
+      <div class="buy">
+        <div><span class="price">&pound;{{ c.price.Value }}</span>{% unless c.in_stock.Value %}<div class="pill solid" style="margin-top:10px">Sold. Ask about a commission</div>{% endunless %}</div>
+        {% if c.in_stock.Value %}<a class="btn fill" href="mailto:studio@kilnandkettle.example?subject=Reserve%20{{ Target.PrimaryField | url_encode }}">Reserve this piece</a>{% else %}<a class="btn" href="{{ PathBase }}/commissions">Commission something similar</a>{% endif %}
+      </div>
+      <div class="panel">
+        <h4>Glaze &amp; dimensions</h4>
+        <div class="swatch" style="margin-bottom:18px"><i></i><span><b>{{ c.glaze.Value }}</b><br><small style="color:var(--ink-3)">Looks like {{ raytha_function("kiln_helpers", "glaze_name", hex=c.glaze_colour.Value) }} ({{ c.glaze_colour.Value }})</small></span></div>
+        <dl class="specs">
+          <div><dt>Height</dt><dd>{{ c.height_cm.Value }} cm</dd></div>
+          <div><dt>Width</dt><dd>{{ c.width_cm.Value }} cm</dd></div>
+          <div><dt>Made</dt><dd>{{ c.made_on.Value | date: "%B %Y" }}</dd></div>
+          <div><dt>Clay</dt><dd>{{ c.clay_body.Value | @clay_body }}</dd></div>
+        </dl>
+        <div class="chips" style="margin-top:18px">{% for f in c.features.Value %}<span class="pill">{{ f | @features }}</span>{% endfor %}</div>
+      </div>
+      <div class="panel prose" style="font-size:1rem">{{ c.story.Value }}</div>
+      {% if maker %}
+      <div class="panel">
+        <h4>Made by</h4>
+        <a class="person" href="{{ PathBase }}/{{ maker.RoutePath }}">{% if maker.PublishedContent.portrait.Value %}<img src="{{ maker.PublishedContent.portrait.Value | attachment_redirect_url }}" alt="">{% endif %}<span><b>{{ maker.PrimaryField }}</b><small>{{ maker.PublishedContent.role.Value | @role }}</small></span></a>
+        <p style="margin:16px 0 0;font-style:italic;color:var(--ink-2)">&ldquo;{{ maker.PublishedContent.pull_quote.Value }}&rdquo;</p>
+      </div>
+      {% endif %}
+      {% if c.care.Value.size > 0 %}
+      <div class="panel"><h4>Looking after it</h4>
+        <ol class="care">{% for s in c.care.Value %}<li><b>{{ s.step }}</b><p>{{ s.detail }}</p></li>{% endfor %}</ol>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% assign more = get_content_items(ContentType="pieces", Filter="is_featured eq 'true'", OrderBy="CreationTime desc", PageSize=5) %}
+  <section class="section tight" style="padding-top:0">
+    <div class="eyebrow">More from the shelves</div>
+    <div class="grid g4">
+      {% assign shown = 0 %}
+      {% for p in more.Items %}{% if p.RoutePath != Target.RoutePath and shown < 4 %}{% assign shown = shown | plus: 1 %}
+        <article class="pc"><div class="pc-img"><img loading="lazy" src="{{ p.PublishedContent.photo.Value | attachment_redirect_url }}" alt=""></div><div class="pc-body"><h3><a href="{{ PathBase }}/{{ p.RoutePath }}">{{ p.PrimaryField }}</a></h3><div class="pc-meta"><span>{{ p.PublishedContent.form.Value | @form }}</span><span class="price">&pound;{{ p.PublishedContent.price.Value }}</span></div></div></article>
+      {% endif %}{% endfor %}
+    </div>
+  </section>
+</div>

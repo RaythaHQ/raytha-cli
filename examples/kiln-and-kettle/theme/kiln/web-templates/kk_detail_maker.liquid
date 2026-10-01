@@ -1,0 +1,33 @@
+{% assign c = Target.PublishedContent %}
+<div class="wrap">
+  <div class="detail" style="--sw:{{ c.signature_glaze.Value | default: '#b5482a' }}">
+    <div class="d-img reveal" style="border-radius:300px 300px var(--r) var(--r)">{% if c.portrait.Value %}<img style="aspect-ratio:3/4" src="{{ c.portrait.Value | attachment_redirect_url }}" alt="{{ Target.PrimaryField | escape }}">{% endif %}</div>
+    <div>
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="{{ PathBase }}/">Home</a><a href="{{ PathBase }}/makers">Makers</a><span>{{ Target.PrimaryField }}</span></nav>
+      <div class="chips" style="margin-bottom:18px"><span class="pill solid">{{ c.role.Value | @role }}</span>{% if c.is_founder.Value %}<span class="pill">Founder</span>{% endif %}</div>
+      <h1 style="font-size:clamp(2.4rem,5vw,4.2rem)">{{ Target.PrimaryField }}</h1>
+      <p class="lede" style="font-style:italic;font-family:var(--display)">&ldquo;{{ c.pull_quote.Value }}&rdquo;</p>
+      <div class="panel prose" style="font-size:1.02rem">{{ c.bio.Value }}</div>
+      <div class="panel">
+        <h4>At a glance</h4>
+        <dl class="specs">
+          <div><dt>Years at the wheel</dt><dd>{{ c.years_at_wheel.Value }}</dd></div>
+          <div><dt>At the studio since</dt><dd>{{ c.joined_on.Value | date: "%B %Y" }}</dd></div>
+          <div><dt>Signature glaze</dt><dd class="swatch"><i></i>{{ raytha_function("kiln_helpers", "glaze_name", hex=c.signature_glaze.Value) }}</dd></div>
+        </dl>
+        <div class="chips" style="margin-top:18px">{% for x in c.crafts.Value %}<span class="pill">{{ x | @crafts }}</span>{% endfor %}</div>
+      </div>
+    </div>
+  </div>
+  {% assign mine = get_content_items(ContentType="pieces", OrderBy="CreationTime desc", PageSize=40) %}
+  {% assign shown = 0 %}
+  <section class="section tight" style="padding-top:0">
+    <div class="eyebrow">Pieces by {{ Target.PrimaryField }}</div>
+    <div class="grid g4">
+      {% for p in mine.Items %}{% if p.PublishedContent.maker.RoutePath == Target.RoutePath and shown < 4 %}{% assign shown = shown | plus: 1 %}
+        <article class="pc"><div class="pc-img"><img loading="lazy" src="{{ p.PublishedContent.photo.Value | attachment_redirect_url }}" alt=""></div><div class="pc-body"><h3><a href="{{ PathBase }}/{{ p.RoutePath }}">{{ p.PrimaryField }}</a></h3><div class="pc-meta"><span>{{ p.PublishedContent.form.Value | @form }}</span><span class="price">&pound;{{ p.PublishedContent.price.Value }}</span></div></div></article>
+      {% endif %}{% endfor %}
+      {% if shown == 0 %}<p style="grid-column:1/-1;color:var(--ink-3)">Teaches and mends more than sells, for now.</p>{% endif %}
+    </div>
+  </section>
+</div>
