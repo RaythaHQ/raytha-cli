@@ -129,7 +129,7 @@ pub enum ViewsCmd {
     /// List views (compact: field definitions are left out; `--full` adds them).
     List {
         content_type: String,
-        /// Include the full content type and field definitions in every view.
+        /// Send compact=false: field definitions inside every view (large; `content-type get` once is cheaper).
         #[arg(long)]
         full: bool,
         #[command(flatten)]
@@ -139,7 +139,7 @@ pub enum ViewsCmd {
     Get {
         content_type: String,
         id: String,
-        /// Include the full content type and field definitions.
+        /// Send compact=false: field definitions inside the view (`content-type get` is cheaper).
         #[arg(long)]
         full: bool,
     },

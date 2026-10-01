@@ -3,8 +3,7 @@
 Gaps in Raytha itself that make API-only workflows harder than they need to be (status checked against 2.6.8).
 Defects are listed separately in [`../RAYTHA_BUGS.md`](../RAYTHA_BUGS.md); this file covers capabilities.
 
-**Status at 2.6.8.** Everything in P1 shipped. Of P2 and P3, still open: field selection on list endpoints other than
-views, attachment upload inline with item creation, a theme-activation webhook, and a content type rename.
+**Status at 2.6.8.** Everything in P1 shipped. Of P2 and P3, still open: attachment upload inline with item creation, a theme-activation webhook, and a content type rename.
 CLI-side ideas are in [`cli-roadmap.md`](cli-roadmap.md).
 
 Priority: **P1** blocks or badly slows API-only clients, **P2** clear win, **P3** nice to have.
@@ -58,9 +57,10 @@ by hand.
 
 ### Field selection and compact responses
 
-**Partly shipped:** view endpoints are compact by default (`compact=false` expands; CLI `views list --full`). List
-endpoints for items, site pages and content types still return everything, so the CLI trims `site-page list` itself.
-Original request follows.
+**Decided: views only, no field selection.** `GET /contenttypes/{type}/views` and `.../views/{id}` take `compact`
+(default true, leaves out `contentType.contentTypeFields`; CLI `views list|get --full` sends `compact=false`). Items,
+content types and other endpoints have no compact or `fields` parameter by design; for field definitions call
+`GET /contenttypes/{type}` or the schema export once. The CLI trims `site-page list` itself. Original request follows.
 
 List and get endpoints return the full schema for each item or view (a views list is about 60 KB). Ask for
 `?fields=id,label,routePath` or `?compact=true`, and omit `contentType.contentTypeFields` from view responses

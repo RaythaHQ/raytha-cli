@@ -30,7 +30,8 @@ raytha schema import schema.json
   it is the quickest way to define five related content types in one call instead of dozens of `fields create`.
 - Relationship fields name the related type (`"relatedContentType": "authors"`); views name their list template
   (`"template"`) in the active theme.
-- `content-type views list` is compact; `--full` adds the field definitions to every view.
+- `content-type views list|get` leave out each view's field definitions (the server's `compact`, on by default).
+  For fields call `content-type get <type>` once or `schema export --summary`; `--full` puts them in every view.
 
 ## Fields
 

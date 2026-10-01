@@ -13,7 +13,7 @@ Priority: **P1** removes the most wasted effort, **P2** clear win, **P3** nice t
 | `raytha schema export` | `schema export [--out FILE] [--summary]` and `schema import FILE [--dry-run]`, on the server's export/import endpoints. |
 | Friendlier `content import` | `content import <type> --file rows.json\|jsonl`: batches of 500, waits for the job, lists failed rows by index. `@file:` values upload attachments, in `content create/edit --data` too. |
 | `@ref:` for relationships | Moot. The server resolves relationships by id, route path or primary field value, so rows hold plain values. |
-| Compact output (partly) | Views are compact on the server (`--full` expands). `site-page list` is trimmed by the CLI (`--full` expands). |
+| Compact output (partly) | `compact` (default true) is on the two view endpoints only; `views list\|get --full` sends `compact=false`. `site-page list` is trimmed by the CLI (`--full` expands). Field definitions: use `content-type get` or `schema export`. |
 | Background jobs | `task get\|wait`, and `--wait` on `theme duplicate` and `theme match-templates`. |
 | Theme usage | `theme usage [--template NAME \| --unused]`. |
 | Functions | `function list\|get\|create\|edit\|delete\|revisions\|revert`, with a `functions` guide topic. |
@@ -51,8 +51,9 @@ that do not exist, widget field names used in the widget Liquid but missing from
 
 ### P2: Compact output for the remaining lists
 
-`content list` and `content-type get` still return every field. Add `--fields a,b,c` and a compact default there
-too; keep `--full` for the raw payload.
+The server's `compact` exists only on the two view endpoints, and field selection was ruled out, so any further
+trimming is the CLI's job. `content list` returns every field of every item. Add a client-side `--fields a,b,c`
+(and a compact default) there; keep `--full` for the raw payload.
 
 ### P2: Local validation in `content import`
 
