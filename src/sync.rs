@@ -255,6 +255,10 @@ impl Report {
 
     fn fail(&mut self, kind: &str, name: &str, e: CliError) {
         self.add(kind, name, "failed", Some(e.message.clone()));
+        if let (Some((line, column)), Some(last)) = (e.location, self.actions.last_mut()) {
+            last["line"] = json!(line);
+            last["column"] = json!(column);
+        }
         self.failures.push(e);
     }
 
@@ -491,10 +495,15 @@ pub fn push(client: &Client, args: &PushArgs) -> Result<Value> {
         "actions": rep.actions,
     });
     if let Some(first) = rep.failures.first() {
+        let applied = if dry {
+            "Nothing was changed (dry run)"
+        } else {
+            "Successful items were applied"
+        };
         let mut err = CliError::new(
             "push_incomplete",
             format!(
-                "{} item(s) failed to sync. Successful items were applied; see error.fields.report.",
+                "{} item(s) failed to sync. {applied}; see error.fields.report.",
                 rep.failures.len()
             ),
             first.exit,
@@ -509,6 +518,14 @@ pub fn push(client: &Client, args: &PushArgs) -> Result<Value> {
 
 type Outcome = (&'static str, Option<String>);
 
+/// A dry run still catches Liquid syntax errors: the server parses the body and saves nothing.
+fn check_liquid(client: &Client, content: Option<&str>) -> Result<()> {
+    match content {
+        Some(c) => wt::validate(client, c),
+        None => Ok(()),
+    }
+}
+
 fn push_web_template(
     client: &Client,
     theme: &str,
@@ -517,7 +534,9 @@ fn push_web_template(
     dry: bool,
 ) -> Result<Outcome> {
     if !exists {
-        if !dry {
+        if dry {
+            check_liquid(client, w.spec.content.as_deref())?;
+        } else {
             wt::create(client, theme, &w.name, &w.spec)?;
         }
         return Ok(("create", None));
@@ -528,7 +547,9 @@ fn push_web_template(
     if normalize_body(&current) == normalize_body(&desired) {
         return Ok(("unchanged", None));
     }
-    if !dry {
+    if dry {
+        check_liquid(client, w.spec.content.as_deref())?;
+    } else {
         client.put(
             &["webtemplates", "theme", theme, "template", &w.name],
             Some(&desired),
@@ -545,7 +566,9 @@ fn push_widget_template(
     dry: bool,
 ) -> Result<Outcome> {
     if !exists {
-        if !dry {
+        if dry {
+            check_liquid(client, Some(&w.content))?;
+        } else {
             wg::create(
                 client,
                 theme,
@@ -581,6 +604,8 @@ fn push_widget_template(
             &["widgettemplates", "theme", theme, "template", &w.name],
             Some(&body),
         )?;
+    } else if str_of(&remote, "content") != Some(w.content.as_str()) {
+        check_liquid(client, Some(&w.content))?;
     }
     let mut changed = Vec::new();
     if !same_label {

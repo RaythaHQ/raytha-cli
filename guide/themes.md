@@ -71,10 +71,17 @@ raytha theme push ./my_theme --prune --dry-run
 
 ```bash
 raytha web-template validate --file layout.liquid     # or --content '<liquid>'; exits non-zero with the parse error
+raytha web-template preview my_theme aurora_list_posts --view <view-id> --out /tmp/list.html
 raytha theme match-templates new_theme --map aurora_list_posts=new_list_posts,aurora_detail_post=new_detail_post
 ```
 
-- `validate` only parses the Liquid; it does not render it. Use it before pushing a template you doubt.
+- `validate` only parses the Liquid; it does not render it. Create, edit and `theme push --dry-run` run the same
+  check, so syntax errors surface before anything is saved. Errors carry `error.line` and `error.column`.
+- `preview` renders a saved template on the server and returns `{html, bytes, title}` (or writes `--out` and returns
+  only the size and title). With no flag it renders against an empty target; `--content-item <id>` (drafts work) or
+  `--view <id>` renders real data, and the two exclude each other. Runtime failures come back as
+  `validation_failed` with the template name in `error.message`; runtime errors have no line or column. Preview is
+  the way to check a page without publishing it: push, preview, fix, repeat.
 - `match-templates` is for moving a live site to another theme without losing view and item bindings. Each
   `--map OLD=NEW` pairs a template of the **active** theme with one of the new theme (`--map-json` takes an object).
   It runs as a background job, returns the job id, and then **makes the new theme active**. Only templates that are

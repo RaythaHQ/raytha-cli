@@ -100,6 +100,9 @@ return a URL to put in templates or widget settings. See `raytha guide media`.
 ## 9. Verify
 
 - `raytha site-page get <id>` shows sections and widgets and whether a draft is pending.
+- Before publishing, render a template on the server: `raytha web-template preview <theme> <name> --view <id>`
+  (or `--content-item <id>`, drafts included). Syntax errors show up earlier, in `raytha theme push --dry-run`,
+  with `line` and `column`.
 - Fetch the public page and look at it: `curl -s "$RAYTHA_URL/about"`. A Liquid error renders as an
   error page or empty block; check the HTML, then fix the template and push again.
 - `raytha site-page publish <id>` if a draft is pending.

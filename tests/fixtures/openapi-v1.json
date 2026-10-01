@@ -988,6 +988,25 @@
     ]
    }
   },
+  "/raytha/api/v1/WebTemplates/{webTemplateId}/render-preview": {
+   "get": {
+    "operationId": "RenderWebTemplatePreview",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "webTemplateId"
+     },
+     {
+      "in": "query",
+      "name": "contentItemId"
+     },
+     {
+      "in": "query",
+      "name": "viewId"
+     }
+    ]
+   }
+  },
   "/raytha/api/v1/WidgetTemplates": {
    "get": {
     "operationId": "GetWidgetTemplates",

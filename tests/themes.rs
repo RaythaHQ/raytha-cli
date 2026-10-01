@@ -285,13 +285,54 @@ async fn push_dry_run_reports_creates_and_writes_nothing() {
     write_theme(dir.path());
     let h = Harness::new().await;
     mock_absent_theme(&h).await;
+    h.ok("POST", "/webtemplates/validate", json!({"isValid": true}))
+        .await;
     let out = h
         .run(&["theme", "push", dir.path().to_str().unwrap(), "--dry-run"])
         .await;
     let d = out.data();
     assert_eq!(d["dryRun"], true);
     assert_eq!(d["summary"]["create"], 4);
-    assert!(h.writes().await.is_empty());
+    // the only POSTs are Liquid validation calls, which save nothing
+    let w = h.writes().await;
+    assert!(
+        w.iter().all(|r| r.path == "/webtemplates/validate"),
+        "{w:?}"
+    );
+    assert!(!w.is_empty());
+    h.assert_contract().await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn push_dry_run_reports_liquid_syntax_errors_with_position() {
+    let dir = tempdir().unwrap();
+    write_theme(dir.path());
+    let h = Harness::new().await;
+    mock_absent_theme(&h).await;
+    h.respond(
+        "POST",
+        "/webtemplates/validate",
+        400,
+        json!({"success": false, "error": "Invalid 'if' tag at (1:6)", "line": 1, "column": 6}),
+    )
+    .await;
+    let out = h
+        .run(&["theme", "push", dir.path().to_str().unwrap(), "--dry-run"])
+        .await;
+    assert_ne!(out.code, 0, "{}", out.stdout);
+    let report = &out.error()["fields"]["report"];
+    let failed: Vec<_> = report["actions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|a| a["action"] == "failed")
+        .collect();
+    assert!(!failed.is_empty(), "{report}");
+    assert!(failed[0].to_string().contains("(1:6)"));
+    assert_eq!(
+        (failed[0]["line"].as_u64(), failed[0]["column"].as_u64()),
+        (Some(1), Some(6))
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -689,5 +730,62 @@ async fn web_template_validate_posts_the_content() {
     assert_eq!(out.data()["valid"], true);
     let w = h.writes().await;
     assert_eq!(w[0].body.as_ref().unwrap()["content"], "<p>{{ 1 }}</p>");
+    h.assert_contract().await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn preview_returns_html_and_maps_render_failures() {
+    use wiremock::matchers::{method, path, query_param};
+    use wiremock::{Mock, ResponseTemplate};
+    let h = Harness::new().await;
+    h.ok(
+        "GET",
+        "/webtemplates/theme/mine/template/page",
+        json!({"id": ID}),
+    )
+    .await;
+    let route = format!("{}/webtemplates/{ID}/render-preview", common::API);
+    Mock::given(method("GET"))
+        .and(path(route.clone()))
+        .and(query_param("viewId", "V1"))
+        .respond_with(
+            ResponseTemplate::new(400)
+                .insert_header("content-type", "application/problem+json")
+                .set_body_json(json!({
+                    "title": "Template render failed",
+                    "status": 400,
+                    "detail": "page: Invalid 'if' tag at (3:4)",
+                    "line": 3,
+                    "column": 4
+                })),
+        )
+        .mount(&h.server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path(route))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .insert_header("content-type", "text/html")
+                .set_body_string("<html><head><title>Hi</title></head></html>"),
+        )
+        .mount(&h.server)
+        .await;
+
+    let ok = h.run(&["web-template", "preview", "mine", "page"]).await;
+    assert_eq!(ok.data()["title"], "Hi");
+    assert!(ok.data()["html"].as_str().unwrap().contains("<title>"));
+
+    let bad = h
+        .run(&["web-template", "preview", "mine", "page", "--view", "V1"])
+        .await;
+    assert_eq!(bad.code, 5);
+    let e = bad.error();
+    assert_eq!(e["code"], "validation_failed");
+    assert!(e["message"].as_str().unwrap().starts_with("page:"));
+    assert_eq!(
+        (e["line"].as_u64(), e["column"].as_u64()),
+        (Some(3), Some(4))
+    );
+    assert!(h.writes().await.is_empty());
     h.assert_contract().await;
 }

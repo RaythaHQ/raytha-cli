@@ -58,6 +58,25 @@ pub enum Cmd {
         #[command(flatten)]
         src: ContentSrc,
     },
+    /// Render a template on the server and return the HTML, without publishing anything.
+    ///
+    /// With no flags the template (and its parent layout) renders against an empty target. Pass
+    /// `--content-item` (drafts included) or `--view` to render with real data. A broken template
+    /// fails with `validation_failed`; `error.message` names the template, and `error.line` and
+    /// `error.column` point into it when Liquid reports a position.
+    Preview {
+        theme: String,
+        name: String,
+        /// Render this content item (id) with the template.
+        #[arg(long, value_name = "ID", conflicts_with = "view")]
+        content_item: Option<String>,
+        /// Render this view (id) with the template.
+        #[arg(long, value_name = "ID")]
+        view: Option<String>,
+        /// Write the HTML to this file and return only its size and `<title>`.
+        #[arg(long, value_name = "PATH")]
+        out: Option<PathBuf>,
+    },
     /// Delete a template.
     Delete {
         theme: String,
@@ -165,17 +184,63 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             let content = src.read()?.ok_or_else(|| {
                 CliError::usage("Nothing to validate: pass --file <path> (or `-`) or --content.")
             })?;
-            client.post(
-                &["webtemplates", "validate"],
-                Some(&json!({ "content": content })),
-            )?;
+            validate(client, &content)?;
             Ok(json!({ "valid": true }))
+        }
+        Cmd::Preview {
+            theme,
+            name,
+            content_item,
+            view,
+            out,
+        } => {
+            let id = str_of(&get(client, &theme, &name)?, "id")
+                .map(str::to_string)
+                .ok_or_else(|| CliError::server("bad_response", "Template has no id."))?;
+            let mut query = Vec::new();
+            if let Some(c) = content_item {
+                query.push(("contentItemId", c));
+            }
+            if let Some(v) = view {
+                query.push(("viewId", v));
+            }
+            let html = client.get_text(&["webtemplates", &id, "render-preview"], &query)?;
+            let title = html_title(&html);
+            match out {
+                Some(path) => {
+                    write_file(&path, &html)?;
+                    Ok(json!({
+                        "file": path.display().to_string(),
+                        "bytes": html.len(),
+                        "title": title,
+                    }))
+                }
+                None => Ok(json!({ "html": html, "bytes": html.len(), "title": title })),
+            }
         }
         Cmd::Delete { theme, name, yes } => {
             require_yes(yes, &format!("web template '{name}' in theme '{theme}'"))?;
             client.delete(&["webtemplates", "theme", &theme, "template", &name], &[])
         }
     }
+}
+
+/// Asks Raytha to parse Liquid without saving it. Fails with the parser's message, line and column.
+pub fn validate(client: &Client, content: &str) -> Result<()> {
+    client.post(
+        &["webtemplates", "validate"],
+        Some(&json!({ "content": content })),
+    )?;
+    Ok(())
+}
+
+fn html_title(html: &str) -> Option<String> {
+    let lower = html.to_ascii_lowercase();
+    let start = lower.find("<title")?;
+    let open_end = start + lower[start..].find('>')? + 1;
+    let end = open_end + lower[open_end..].find("</title>")?;
+    let title = html[open_end..end].trim();
+    (!title.is_empty()).then(|| title.to_string())
 }
 
 pub fn get(client: &Client, theme: &str, name: &str) -> Result<Value> {
@@ -273,4 +338,18 @@ pub fn edit_body(client: &Client, remote: &Value, spec: &Spec) -> Result<Value> 
     b.insert("allowAccessForNewContentTypes".into(), json!(allow));
     b.insert("templateAccessToModelDefinitions".into(), json!(types));
     Ok(Value::Object(b))
+}
+
+#[cfg(test)]
+mod preview_tests {
+    use super::html_title;
+
+    #[test]
+    fn finds_the_title() {
+        assert_eq!(
+            html_title("<html><HEAD><Title> Hi there </TITLE></head>").as_deref(),
+            Some("Hi there")
+        );
+        assert_eq!(html_title("<p>no title</p>"), None);
+    }
 }

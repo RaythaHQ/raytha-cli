@@ -20,8 +20,9 @@ creation and activation bind all views to the theme's built-in list template aut
 
 ### Template validation and readable render errors
 
-**Partly shipped:** `POST /WebTemplates/validate` exists (CLI: `web-template validate`). Render errors and a preview
-endpoint are still open.
+**Shipped in 2.6.6:** `POST /WebTemplates/validate` and save-time checks return line and column; failed renders name
+the template; `GET /WebTemplates/{id}/render-preview` renders with an item or view (CLI: `web-template validate`,
+`web-template preview`, and `theme push --dry-run` validates).
 
 A Liquid error returns an empty 500/400 body, and pushing a template never parses it (bug #10). Ask:
 - `POST /web-templates/validate` (or validate on create and update) returning the parse error with line and column.

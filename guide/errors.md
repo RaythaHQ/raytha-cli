@@ -33,7 +33,7 @@ Every failure prints one JSON document on stdout and exits non-zero:
 | `unauthorized` | 401. Key rejected or URL points at a different site. Keys are shown once when created. |
 | `forbidden` | 403. The key's admin lacks the permission named in `hint`. `raytha doctor` lists what works. |
 | `not_found` | 404. Check spelling; developer names are lowercase with underscores. |
-| `validation_failed` | 400. Input invalid; see `fields`. |
+| `validation_failed` | 400. Input invalid; see `fields`. Liquid syntax errors also carry `line` and `column`. |
 | `invalid_identifier` | 422. An id was malformed; copy ids exactly from list/get output. |
 | `conflict` | 409. Already exists or in use. |
 | `payload_too_large` | 413. Upload over the server limit. |

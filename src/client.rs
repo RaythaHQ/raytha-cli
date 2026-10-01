@@ -87,6 +87,25 @@ impl Client {
         self.call(Method::DELETE, segs, &[], Body::Json(body))
     }
 
+    /// GET that returns a text body (HTML previews) instead of JSON. Errors map like any other call.
+    pub fn get_text(&self, segs: &[&str], query: Query) -> Result<String> {
+        let label = segs.join("/");
+        let mut rb = self
+            .request(Method::GET, segs)
+            .header("Accept", "text/html");
+        if !query.is_empty() {
+            rb = rb.query(query);
+        }
+        let resp = rb.send().map_err(|e| self.network_error(e))?;
+        let status = resp.status();
+        let text = resp.text().map_err(|e| self.network_error(e))?;
+        if status.is_success() {
+            Ok(text)
+        } else {
+            Err(http_error(status.as_u16(), &text, &label))
+        }
+    }
+
     pub fn upload(&self, segs: &[&str], path: &Path) -> Result<Value> {
         self.call(Method::POST, segs, &[], Body::File(path))
     }
@@ -404,7 +423,21 @@ pub fn http_error(status: u16, body: &str, label: &str) -> CliError {
     if let Some(f) = fields {
         err = err.with_fields(normalize_fields(f));
     }
+    let num = |k: &str| obj.and_then(|o| o.get(k)).and_then(Value::as_u64);
+    if let (Some(line), Some(column)) = (num("line"), num("column")) {
+        err = err.with_location(line, column);
+    } else if let Some((line, column)) = position_prefix(&err.message) {
+        err = err.with_location(line, column);
+    }
     err.with_status(status)
+}
+
+/// Save-time template checks fold the position into the message as `Line 1, column 9: ...`.
+fn position_prefix(message: &str) -> Option<(u64, u64)> {
+    let rest = message.strip_prefix("Line ")?;
+    let (line, rest) = rest.split_once(", column ")?;
+    let (column, _) = rest.split_once(':')?;
+    Some((line.trim().parse().ok()?, column.trim().parse().ok()?))
 }
 
 /// Keeps ASP.NET's `{ "Field": ["msg"] }` shape but camelCases nothing: agents see exactly the
@@ -434,6 +467,26 @@ mod tests {
         assert_eq!(e.code, "validation_failed");
         assert_eq!(e.exit, EXIT_VALIDATION);
         assert!(e.fields.unwrap()["Title"].is_array());
+    }
+
+    #[test]
+    fn parser_position_becomes_line_and_column() {
+        let body = r#"{"success":false,"error":"Invalid 'if' tag at (1:6)","line":1,"column":6}"#;
+        let j = http_error(400, body, "webtemplates/validate").to_json();
+        assert_eq!(j["error"]["line"], 1);
+        assert_eq!(j["error"]["column"], 6);
+        let plain = http_error(400, r#"{"error":"x"}"#, "webtemplates").to_json();
+        assert!(plain["error"].get("line").is_none());
+    }
+
+    #[test]
+    fn save_time_position_prefix_is_parsed() {
+        let body = r#"{"success":false,"error":"Line 2, column 9: Invalid 'if' tag"}"#;
+        let j = http_error(400, body, "webtemplates/theme/x").to_json();
+        assert_eq!(
+            (j["error"]["line"].clone(), j["error"]["column"].clone()),
+            (json!(2), json!(9))
+        );
     }
 
     #[test]

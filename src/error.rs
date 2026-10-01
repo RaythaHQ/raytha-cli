@@ -22,6 +22,8 @@ pub struct CliError {
     pub message: String,
     pub hint: Option<String>,
     pub fields: Option<Value>,
+    /// Line and column in the submitted Liquid, when Raytha's parser reports one.
+    pub location: Option<(u64, u64)>,
     pub status: Option<u16>,
     pub exit: i32,
 }
@@ -35,6 +37,7 @@ impl CliError {
             message: message.into(),
             hint: None,
             fields: None,
+            location: None,
             status: None,
             exit,
         }
@@ -70,6 +73,11 @@ impl CliError {
         self
     }
 
+    pub fn with_location(mut self, line: u64, column: u64) -> Self {
+        self.location = Some((line, column));
+        self
+    }
+
     pub fn with_status(mut self, status: u16) -> Self {
         self.status = Some(status);
         self
@@ -84,6 +92,10 @@ impl CliError {
         }
         if let Some(fields) = &self.fields {
             error.insert("fields".into(), fields.clone());
+        }
+        if let Some((line, column)) = self.location {
+            error.insert("line".into(), json!(line));
+            error.insert("column".into(), json!(column));
         }
         if let Some(status) = self.status {
             error.insert("status".into(), json!(status));
