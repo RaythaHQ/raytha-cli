@@ -14,8 +14,12 @@ use clap::{Parser, Subcommand};
 use error::{CliError, Result};
 use serde_json::Value;
 
-const ABOUT: &str = "Manage a Raytha site (themes, templates, pages, content, media, menus) from the \
-command line. Built for LLM agents: JSON on stdout, stable exit codes, actionable errors.";
+const ABOUT: &str =
+    "Manage a Raytha site (themes, templates, pages, content, media, menus) from the \
+command line. Built for LLM agents: JSON on stdout, stable exit codes, actionable errors.
+
+START HERE: run `raytha guide build-a-site` (the agent playbook), then `raytha doctor`. \
+`raytha guide` lists every topic; the docs are built into this binary.";
 
 const AFTER_HELP: &str = "\
 Configuration (environment only):
@@ -25,7 +29,7 @@ Configuration (environment only):
 Output: one JSON document on stdout, {\"ok\":true,\"data\":...} or {\"ok\":false,\"error\":{...}}.
 Exit codes: 0 ok, 2 usage/config, 3 auth/permission, 4 not found, 5 validation, 6 server/network.
 
-New here? Run `raytha guide` (or `raytha guide build-a-site`) and `raytha doctor`.";
+Docs: `raytha guide` lists the built-in topics; read `raytha guide build-a-site` first.";
 
 #[derive(Parser, Debug)]
 #[command(name = "raytha", version, about = ABOUT, after_help = AFTER_HELP)]
