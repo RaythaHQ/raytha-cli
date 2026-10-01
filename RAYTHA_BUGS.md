@@ -53,7 +53,26 @@ the maker's own page printed the right id and the other item's relationship prin
 `Id` values seem to be different types in the Liquid model, so Fluid's `==` treats them as unequal. Comparing `RoutePath` (or `PrimaryField`) works; fixing the comparison would make "items that point at
 this item" loops natural to write.
 
-## 5. [unconfirmed] Active theme appeared to clear after deleting a temporary theme
+### 5. bug: `/raytha/media-items/objectkey/{key}` redirects to an absolute URL on the configured `WebsiteUrl`
+
+With local file storage, `GET /raytha/media-items/objectkey/{key}` (and `/id/{id}`) answers a 302 whose `Location` is
+`{WebsiteUrl}{PathBase}/_static-files/{key}`, built by `RelativeUrlBuilder.MediaFileLocalStorageUrl` through
+`GetBaseUrl()`. If `WebsiteUrl` is `http://localhost:5200` and the site is opened any other way (Tailscale or LAN IP,
+a second hostname, another port), the browser follows the redirect to `localhost` and every image that goes through
+`attachment_redirect_url` or a stored `/raytha/media-items/objectkey/...` URL breaks. Fetching `/_static-files/{key}`
+directly works, and so does `attachment_public_url`, because `RenderEngine.AttachmentPublicUrl` passes the provider URL
+through `PublicAssetUrl.PreferRootRelative`; `RedirectToFileUrlByObjectKey` and `RedirectToFileUrlById` in
+`MediaItemsEndpoints.cs` hand the raw provider URL to `Results.Redirect` without that step.
+
+Reproduce: `curl -sI -H 'Host: 100.114.1.96:5200' localhost:5200/raytha/media-items/objectkey/<key>` returns
+`Location: http://localhost:5200/_static-files/<key>`.
+
+Fix: run the provider URL through `PublicAssetUrl.PreferRootRelative` in both redirect endpoints (or make
+`MediaFileLocalStorageUrl` root-relative, as the 2.0 URL work did for stored values). Cloud providers (S3, Azure) are
+unaffected since their presigned URLs are already absolute. Workaround: set the organization `WebsiteUrl` to the address
+visitors actually use, or use `attachment_public_url` in templates.
+
+## 6. [unconfirmed] Active theme appeared to clear after deleting a temporary theme
 
 Once, during the re-test, the sequence `theme create zz_theme`, `theme activate zz_theme`, bind a view,
 `theme activate aurora`, `theme delete zz_theme` left the site with no active theme: view routes returned 404 and
