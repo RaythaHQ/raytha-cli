@@ -82,6 +82,11 @@ impl Client {
         self.call(Method::DELETE, segs, query, Body::None)
     }
 
+    /// DELETE with a JSON body (bulk deletes list the ids to remove).
+    pub fn delete_json(&self, segs: &[&str], body: &Value) -> Result<Value> {
+        self.call(Method::DELETE, segs, &[], Body::Json(body))
+    }
+
     pub fn upload(&self, segs: &[&str], path: &Path) -> Result<Value> {
         self.call(Method::POST, segs, &[], Body::File(path))
     }

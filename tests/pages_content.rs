@@ -494,6 +494,47 @@ async fn content_trash_restore_purge_and_route_lookups() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn delete_many_sends_the_ids_in_the_body() {
+    let h = Harness::new().await;
+    h.ok("DELETE", "/contentitems/posts/items", json!("TYPEID"))
+        .await;
+    // refuses without --yes and without ids, before any request is made
+    assert_eq!(
+        h.run(&["content", "delete-many", "posts", "--ids", "A,B"])
+            .await
+            .error()["code"],
+        "usage"
+    );
+    assert_eq!(
+        h.run(&["content", "delete-many", "posts", "--yes"])
+            .await
+            .error()["code"],
+        "usage"
+    );
+    assert!(h.writes().await.is_empty());
+
+    let dir = std::env::temp_dir().join(format!("raytha-ids-{}", std::process::id()));
+    std::fs::write(&dir, r#"["-C","B"]"#).unwrap();
+    h.run(&[
+        "content",
+        "delete-many",
+        "posts",
+        "--ids",
+        "A,B",
+        "--ids-file",
+        dir.to_str().unwrap(),
+        "--yes",
+    ])
+    .await
+    .data();
+    let w = h.writes().await;
+    assert_eq!(summary(&w), ["DELETE /contentitems/posts/items"]);
+    // merged, de-duplicated and sorted
+    assert_eq!(w[0].body.as_ref().unwrap()["ids"], json!(["-C", "A", "B"]));
+    h.assert_contract().await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn ids_may_start_with_a_hyphen() {
     let h = Harness::new().await;
     h.ok("DELETE", "/contentitems/posts/-ITEMID", json!("-ITEMID"))

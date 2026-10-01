@@ -7,7 +7,7 @@ use super::{ListArgs, list, require_yes, resolve_template, str_of, web_template_
 const DEFAULT_DETAIL_TEMPLATE: &str = "raytha_html_content_item_detail";
 use crate::client::Client;
 use crate::error::{CliError, Result};
-use crate::input::BodyArgs;
+use crate::input::{BodyArgs, read_text};
 use clap::Subcommand;
 use serde_json::{Map, Value, json};
 
@@ -89,6 +89,22 @@ pub enum Cmd {
     Delete {
         content_type: String,
         id: String,
+        /// Confirm the deletion.
+        #[arg(long)]
+        yes: bool,
+    },
+    /// Move several items of one content type to the trash in a single call.
+    ///
+    /// Give the ids with `--ids a,b,c` and/or `--ids-file` (a JSON array, or one id per line;
+    /// `-` reads stdin). Every id must belong to the content type or nothing is deleted.
+    DeleteMany {
+        content_type: String,
+        /// Comma-separated item ids.
+        #[arg(long, value_delimiter = ',')]
+        ids: Vec<String>,
+        /// File with ids: a JSON array, or ids separated by whitespace. `-` for stdin.
+        #[arg(long, value_name = "PATH|-")]
+        ids_file: Option<String>,
         /// Confirm the deletion.
         #[arg(long)]
         yes: bool,
@@ -254,6 +270,28 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             require_yes(yes, &format!("content item '{id}'"))?;
             client.delete(&["contentitems", &content_type, &id], &[])
         }
+        Cmd::DeleteMany {
+            content_type,
+            mut ids,
+            ids_file,
+            yes,
+        } => {
+            if let Some(src) = ids_file {
+                ids.extend(parse_ids(&read_text(&src)?)?);
+            }
+            ids.retain(|id| !id.is_empty());
+            ids.sort();
+            ids.dedup();
+            if ids.is_empty() {
+                return Err(CliError::usage("No item ids given.")
+                    .with_hint("Pass --ids a,b,c or --ids-file ids.json."));
+            }
+            require_yes(yes, &format!("{} content items", ids.len()))?;
+            client.delete_json(
+                &["contentitems", &content_type, "items"],
+                &json!({ "ids": ids }),
+            )
+        }
         Cmd::Trash { content_type } => client.get(&["contentitems", &content_type, "trash"], &[]),
         Cmd::Restore { content_type, id } => {
             client.put(&["contentitems", &content_type, &id, "restore"], None)
@@ -267,6 +305,22 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
             client.delete(&["contentitems", &content_type, "trash", &id], &[])
         }
     }
+}
+
+/// Ids from a JSON array of strings, or any whitespace/comma separated list.
+fn parse_ids(text: &str) -> Result<Vec<String>> {
+    let trimmed = text.trim();
+    if trimmed.starts_with('[') {
+        let v: Vec<String> = serde_json::from_str(trimmed).map_err(|e| {
+            CliError::usage(format!("ids file is not a JSON array of strings: {e}"))
+        })?;
+        return Ok(v);
+    }
+    Ok(trimmed
+        .split(|c: char| c.is_whitespace() || c == ',')
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .collect())
 }
 
 /// The content an edit should start from: the draft when there is one, else what is published.
@@ -287,6 +341,13 @@ pub fn current_content(item: &Value) -> Map<String, Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ids_parse_from_json_or_plain_lists() {
+        assert_eq!(parse_ids(r#"["a","-b"]"#).unwrap(), vec!["a", "-b"]);
+        assert_eq!(parse_ids("a\n-b, c\n").unwrap(), vec!["a", "-b", "c"]);
+        assert!(parse_ids("[1,2]").is_err());
+    }
 
     #[test]
     fn prefers_draft_content() {

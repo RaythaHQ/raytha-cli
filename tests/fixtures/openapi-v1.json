@@ -45,6 +45,17 @@
     ]
    }
   },
+  "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/items": {
+   "delete": {
+    "operationId": "DeleteContentItems",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "contentTypeDeveloperName"
+     }
+    ]
+   }
+  },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/route/{routePath}": {
    "get": {
     "operationId": "GetRouteByPath",
@@ -56,6 +67,17 @@
      {
       "in": "path",
       "name": "routePath"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/template": {
+   "post": {
+    "operationId": "AssignContentItemTemplates",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "contentTypeDeveloperName"
      }
     ]
    }
@@ -87,19 +109,6 @@
    }
   },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/{contentItemId}": {
-   "delete": {
-    "operationId": "DeleteContentItem",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "contentTypeDeveloperName"
-     },
-     {
-      "in": "path",
-      "name": "contentItemId"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetContentItemById",
     "parameters": [
@@ -115,6 +124,19 @@
    },
    "put": {
     "operationId": "EditContentItem",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "contentTypeDeveloperName"
+     },
+     {
+      "in": "path",
+      "name": "contentItemId"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteContentItem",
     "parameters": [
      {
       "in": "path",
@@ -244,6 +266,15 @@
       "name": "contentTypeDeveloperName"
      }
     ]
+   },
+   "delete": {
+    "operationId": "DeleteContentType",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "contentTypeDeveloperName"
+     }
+    ]
    }
   },
   "/raytha/api/v1/MediaItems": {
@@ -280,6 +311,15 @@
    }
   },
   "/raytha/api/v1/MediaItems/{objectKey}": {
+   "delete": {
+    "operationId": "DeleteMediaItemByObjectKey",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "objectKey"
+     }
+    ]
+   },
    "get": {
     "operationId": "GetMediaItemUrlByObjectKey",
     "parameters": [
@@ -318,15 +358,6 @@
    }
   },
   "/raytha/api/v1/Menus/{menuDeveloperName}": {
-   "delete": {
-    "operationId": "DeleteMenu",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "menuDeveloperName"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetMenuByDeveloperName",
     "parameters": [
@@ -338,6 +369,15 @@
    },
    "put": {
     "operationId": "EditMenu",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "menuDeveloperName"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteMenu",
     "parameters": [
      {
       "in": "path",
@@ -367,19 +407,6 @@
    }
   },
   "/raytha/api/v1/Menus/{menuDeveloperName}/menu-items/{menuItemId}": {
-   "delete": {
-    "operationId": "DeleteMenuItem",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "menuDeveloperName"
-     },
-     {
-      "in": "path",
-      "name": "menuItemId"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetMenuItemById",
     "parameters": [
@@ -395,6 +422,19 @@
    },
    "put": {
     "operationId": "EditMenuItem",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "menuDeveloperName"
+     },
+     {
+      "in": "path",
+      "name": "menuItemId"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteMenuItem",
     "parameters": [
      {
       "in": "path",
@@ -473,15 +513,6 @@
    }
   },
   "/raytha/api/v1/SitePages/{sitePageId}": {
-   "delete": {
-    "operationId": "DeleteSitePage",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "sitePageId"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetSitePageById",
     "parameters": [
@@ -493,6 +524,15 @@
    },
    "put": {
     "operationId": "EditSitePage",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "sitePageId"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteSitePage",
     "parameters": [
      {
       "in": "path",
@@ -568,6 +608,19 @@
    }
   },
   "/raytha/api/v1/SitePages/{sitePageId}/widgets/{widgetId}": {
+   "put": {
+    "operationId": "EditSitePageWidget",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "sitePageId"
+     },
+     {
+      "in": "path",
+      "name": "widgetId"
+     }
+    ]
+   },
    "delete": {
     "operationId": "DeleteSitePageWidget",
     "parameters": [
@@ -582,19 +635,6 @@
      {
       "in": "query",
       "name": "sectionName"
-     }
-    ]
-   },
-   "put": {
-    "operationId": "EditSitePageWidget",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "sitePageId"
-     },
-     {
-      "in": "path",
-      "name": "widgetId"
      }
     ]
    }
@@ -633,15 +673,6 @@
    }
   },
   "/raytha/api/v1/Themes/{themeDeveloperName}": {
-   "delete": {
-    "operationId": "DeleteTheme",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "themeDeveloperName"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetThemeByDeveloperName",
     "parameters": [
@@ -653,6 +684,26 @@
    },
    "put": {
     "operationId": "EditTheme",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "themeDeveloperName"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteTheme",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "themeDeveloperName"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/Themes/{themeDeveloperName}/match-web-templates": {
+   "post": {
+    "operationId": "MatchWebTemplates",
     "parameters": [
      {
       "in": "path",
@@ -735,15 +786,6 @@
    }
   },
   "/raytha/api/v1/UserGroups/{userGroupId}": {
-   "delete": {
-    "operationId": "DeleteUserGroup",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "userGroupId"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetUserGroupById",
     "parameters": [
@@ -755,6 +797,15 @@
    },
    "put": {
     "operationId": "EditUserGroup",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "userGroupId"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteUserGroup",
     "parameters": [
      {
       "in": "path",
@@ -791,15 +842,6 @@
    }
   },
   "/raytha/api/v1/Users/{userId}": {
-   "delete": {
-    "operationId": "DeleteUser",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "userId"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetUserById",
     "parameters": [
@@ -811,6 +853,15 @@
    },
    "put": {
     "operationId": "EditUser",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "userId"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteUser",
     "parameters": [
      {
       "in": "path",
@@ -880,19 +931,6 @@
    }
   },
   "/raytha/api/v1/WebTemplates/theme/{themeDeveloperName}/template/{templateDeveloperName}": {
-   "delete": {
-    "operationId": "DeleteWebTemplate",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "themeDeveloperName"
-     },
-     {
-      "in": "path",
-      "name": "templateDeveloperName"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetWebTemplateByDeveloperName",
     "parameters": [
@@ -918,6 +956,25 @@
       "name": "templateDeveloperName"
      }
     ]
+   },
+   "delete": {
+    "operationId": "DeleteWebTemplate",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "themeDeveloperName"
+     },
+     {
+      "in": "path",
+      "name": "templateDeveloperName"
+     }
+    ]
+   }
+  },
+  "/raytha/api/v1/WebTemplates/validate": {
+   "post": {
+    "operationId": "ValidateWebTemplate",
+    "parameters": []
    }
   },
   "/raytha/api/v1/WebTemplates/{webTemplateId}": {
@@ -970,19 +1027,6 @@
    }
   },
   "/raytha/api/v1/WidgetTemplates/theme/{themeDeveloperName}/template/{templateDeveloperName}": {
-   "delete": {
-    "operationId": "DeleteWidgetTemplate",
-    "parameters": [
-     {
-      "in": "path",
-      "name": "themeDeveloperName"
-     },
-     {
-      "in": "path",
-      "name": "templateDeveloperName"
-     }
-    ]
-   },
    "get": {
     "operationId": "GetWidgetTemplateByDeveloperName",
     "parameters": [
@@ -998,6 +1042,19 @@
    },
    "put": {
     "operationId": "EditWidgetTemplate",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "themeDeveloperName"
+     },
+     {
+      "in": "path",
+      "name": "templateDeveloperName"
+     }
+    ]
+   },
+   "delete": {
+    "operationId": "DeleteWidgetTemplate",
     "parameters": [
      {
       "in": "path",
@@ -1044,8 +1101,8 @@
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/fields/{id}": {
-   "delete": {
-    "operationId": "DeleteContentTypeField",
+   "put": {
+    "operationId": "EditContentTypeField",
     "parameters": [
      {
       "in": "path",
@@ -1057,8 +1114,8 @@
      }
     ]
    },
-   "put": {
-    "operationId": "EditContentTypeField",
+   "delete": {
+    "operationId": "DeleteContentTypeField",
     "parameters": [
      {
       "in": "path",
@@ -1123,8 +1180,8 @@
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/views/{id}": {
-   "delete": {
-    "operationId": "DeleteView",
+   "get": {
+    "operationId": "GetViewById",
     "parameters": [
      {
       "in": "path",
@@ -1136,8 +1193,8 @@
      }
     ]
    },
-   "get": {
-    "operationId": "GetViewById",
+   "delete": {
+    "operationId": "DeleteView",
     "parameters": [
      {
       "in": "path",

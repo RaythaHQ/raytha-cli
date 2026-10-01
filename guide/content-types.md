@@ -51,11 +51,17 @@ raytha content unpublish posts <id>
 raytha content settings posts <id> --route-path blog/hello
 raytha content get-by-path posts blog/hello
 raytha content delete posts <id> --yes
+raytha content delete-many posts --ids <id1>,<id2>,<id3> --yes
+raytha content delete-many posts --ids-file ids.json --yes
 raytha content trash posts
 raytha content restore posts <id>
 raytha content purge posts <id> --yes
 ```
 
+- `delete-many` trashes several items of one type in one call (all ids must belong to the type, or nothing is
+  deleted). `--ids-file` takes a JSON array or ids separated by whitespace; `-` reads stdin. For example,
+  `raytha content list posts --all | jq -r '.data.items[].id' | raytha content delete-many posts --ids-file - --yes`
+  empties a type, so check the list first.
 - `--data` is an object of `developerName: value`. Dates are ISO strings; checkbox is a boolean;
   attachment fields take the object key from `raytha media upload`; relationships take the related
   item's id; multiple_select takes an array of choice developer names.
