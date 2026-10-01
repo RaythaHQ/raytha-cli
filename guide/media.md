@@ -35,6 +35,7 @@ and link them with the `url`.
 raytha media upload ./hero.jpg
 raytha media list --all
 raytha media get-url <object-key>
+raytha media delete <object-key> --yes
 ```
 
 `upload` returns `{"objectKey": "...", "url": "..."}`. Keep the `objectKey`.

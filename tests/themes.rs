@@ -647,3 +647,47 @@ async fn push_uploads_new_theme_media_and_skips_same_size_files() {
     assert_eq!(uploads[0].path, "/themes/mine/media");
     h.assert_contract().await;
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn match_templates_posts_the_pairs() {
+    let h = Harness::new().await;
+    h.ok("POST", "/themes/mine/match-web-templates", json!(ID))
+        .await;
+    let bad = h
+        .run(&["theme", "match-templates", "mine", "--map", "oops"])
+        .await;
+    assert_eq!(bad.error()["code"], "usage");
+    assert!(h.writes().await.is_empty());
+    h.run(&[
+        "theme",
+        "match-templates",
+        "mine",
+        "--map",
+        "a=x,b=y",
+        "--map-json",
+        r#"{"c":"z"}"#,
+    ])
+    .await
+    .data();
+    let w = h.writes().await;
+    assert_eq!(w[0].path, "/themes/mine/match-web-templates");
+    assert_eq!(
+        w[0].body.as_ref().unwrap()["matchedWebTemplateDeveloperNames"],
+        json!({"a": "x", "b": "y", "c": "z"})
+    );
+    h.assert_contract().await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn web_template_validate_posts_the_content() {
+    let h = Harness::new().await;
+    h.ok("POST", "/webtemplates/validate", json!({"isValid": true}))
+        .await;
+    let out = h
+        .run(&["web-template", "validate", "--content", "<p>{{ 1 }}</p>"])
+        .await;
+    assert_eq!(out.data()["valid"], true);
+    let w = h.writes().await;
+    assert_eq!(w[0].body.as_ref().unwrap()["content"], "<p>{{ 1 }}</p>");
+    h.assert_contract().await;
+}

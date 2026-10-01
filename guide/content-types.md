@@ -9,6 +9,7 @@ one-off pages.
 ```bash
 raytha content-type create posts --label-plural Posts --label-singular Post --route-template "{CurrentYear}/{PrimaryField}"
 raytha content-type get posts
+raytha content-type delete posts --yes   # also deletes every item of the type
 ```
 
 A new type starts with two fields, `title` (single line text, the primary field) and `content`
@@ -53,6 +54,8 @@ raytha content get-by-path posts blog/hello
 raytha content delete posts <id> --yes
 raytha content delete-many posts --ids <id1>,<id2>,<id3> --yes
 raytha content delete-many posts --ids-file ids.json --yes
+raytha content assign-template posts --template aurora_detail_post --all
+raytha content assign-template posts --template aurora_detail_post --ids <id1>,<id2>
 raytha content trash posts
 raytha content restore posts <id>
 raytha content purge posts <id> --yes
@@ -62,6 +65,8 @@ raytha content purge posts <id> --yes
   deleted). `--ids-file` takes a JSON array or ids separated by whitespace; `-` reads stdin. For example,
   `raytha content list posts --all | jq -r '.data.items[].id' | raytha content delete-many posts --ids-file - --yes`
   empties a type, so check the list first.
+- `assign-template` re-points existing items at another detail template (name or `--template-id`). It needs
+  `--ids`/`--ids-file` or `--all` (every item of the type), and the template must be allowed for the type.
 - `--data` is an object of `developerName: value`. Dates are ISO strings; checkbox is a boolean;
   attachment fields take the object key from `raytha media upload`; relationships take the related
   item's id; multiple_select takes an array of choice developer names.

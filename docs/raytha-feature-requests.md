@@ -10,12 +10,18 @@ Priority: **P1** blocks or badly slows API-only clients, **P2** clear win, **P3*
 
 ### Bind views to a theme from the v1 API
 
+**Shipped in 2.6.4** as `POST /themes/{theme}/match-web-templates` (CLI: `theme match-templates`). Still open: it is
+asynchronous and activates the theme, with no way to poll the job. Original request follows.
+
 Only `BeginDuplicateTheme` and `BeginMatchWebTemplates` create the view-to-template bindings for a theme, and
 both are admin-cookie endpoints. Every API-created theme therefore leaves existing views unusable (see bug #6).
 Ask: expose `POST /themes/{id}/match-web-templates` in v1, expose `POST /themes/{id}/duplicate`, or have theme
 creation and activation bind all views to the theme's built-in list template automatically.
 
 ### Template validation and readable render errors
+
+**Partly shipped:** `POST /WebTemplates/validate` exists (CLI: `web-template validate`). Render errors and a preview
+endpoint are still open.
 
 A Liquid error returns an empty 500/400 body, and pushing a template never parses it (bug #10). Ask:
 - `POST /web-templates/validate` (or validate on create and update) returning the parse error with line and column.
@@ -24,6 +30,9 @@ A Liquid error returns an empty 500/400 body, and pushing a template never parse
   exception, so agents can verify without a public request.
 
 ### Missing v1 operations
+
+**Shipped in 2.6.4:** content type delete, media delete, bulk content delete and bulk template assignment (CLI:
+`content-type delete`, `media delete`, `content delete-many`, `content assign-template`). Only the rename item remains.
 
 - Delete a content type (a fresh install's sample `posts` type cannot be removed by an API client).
 - Delete media library items.

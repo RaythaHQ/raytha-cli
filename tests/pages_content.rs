@@ -900,3 +900,94 @@ async fn content_create_defaults_to_the_builtin_detail_template() {
     );
     h.assert_contract().await;
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn assign_template_sends_ids_or_all() {
+    let h = Harness::new().await;
+    h.ok("GET", "/webtemplates/theme/aurora", json!({})).await;
+    h.ok("POST", "/contentitems/posts/template", json!("TYPEID"))
+        .await;
+    // needs --ids or --all, and the two exclude each other
+    let none = h
+        .run(&["content", "assign-template", "posts", "--template-id", ID])
+        .await;
+    assert_eq!(none.error()["code"], "usage");
+    let both = h
+        .run(&[
+            "content",
+            "assign-template",
+            "posts",
+            "--template-id",
+            ID,
+            "--ids",
+            "A",
+            "--all",
+        ])
+        .await;
+    assert_eq!(both.error()["code"], "usage");
+    assert!(h.writes().await.is_empty());
+
+    h.run(&[
+        "content",
+        "assign-template",
+        "posts",
+        "--template-id",
+        ID,
+        "--ids",
+        "A,B",
+    ])
+    .await
+    .data();
+    h.run(&[
+        "content",
+        "assign-template",
+        "posts",
+        "--template-id",
+        ID,
+        "--all",
+    ])
+    .await
+    .data();
+    let w = h.writes().await;
+    assert_eq!(
+        summary(&w),
+        [
+            "POST /contentitems/posts/template",
+            "POST /contentitems/posts/template"
+        ]
+    );
+    let first = w[0].body.as_ref().unwrap();
+    assert_eq!(first["templateId"], ID);
+    assert_eq!(first["contentItemIds"], json!(["A", "B"]));
+    assert!(w[1].body.as_ref().unwrap().get("contentItemIds").is_none());
+    h.assert_contract().await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn content_type_and_media_delete_need_yes() {
+    let h = Harness::new().await;
+    h.ok("DELETE", "/contenttypes/posts", json!(ID)).await;
+    h.ok("DELETE", "/mediaitems/abc_hero.png", json!(ID)).await;
+    for args in [
+        vec!["content-type", "delete", "posts"],
+        vec!["media", "delete", "abc_hero.png"],
+    ] {
+        assert_eq!(h.run(&args).await.error()["code"], "usage");
+    }
+    assert!(h.writes().await.is_empty());
+    h.run(&["content-type", "delete", "posts", "--yes"])
+        .await
+        .data();
+    h.run(&["media", "delete", "abc_hero.png", "--yes"])
+        .await
+        .data();
+    let w = h.writes().await;
+    assert_eq!(
+        summary(&w),
+        [
+            "DELETE /contenttypes/posts",
+            "DELETE /mediaitems/abc_hero.png"
+        ]
+    );
+    h.assert_contract().await;
+}

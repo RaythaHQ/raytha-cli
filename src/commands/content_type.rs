@@ -43,6 +43,13 @@ pub enum Cmd {
         #[arg(long)]
         primary_field: Option<String>,
     },
+    /// Delete a content type with all its fields, views and items.
+    Delete {
+        developer_name: String,
+        /// Confirm the deletion.
+        #[arg(long)]
+        yes: bool,
+    },
     /// List the field types a content type field can use.
     FieldTypes,
     /// Manage fields.
@@ -197,6 +204,16 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
     match cmd {
         Cmd::List(args) => list(client, &["contenttypes"], &[], &args),
         Cmd::Get { developer_name } => client.get(&["contenttypes", &developer_name], &[]),
+        Cmd::Delete {
+            developer_name,
+            yes,
+        } => {
+            require_yes(
+                yes,
+                &format!("content type '{developer_name}' with all its items"),
+            )?;
+            client.delete(&["contenttypes", &developer_name], &[])
+        }
         Cmd::Create {
             developer_name,
             label_plural,

@@ -50,6 +50,14 @@ pub enum Cmd {
         #[command(flatten)]
         opts: Opts,
     },
+    /// Check liquid syntax on the server without saving anything.
+    ///
+    /// Exits 0 with `{"valid":true}`, or fails with `validation_failed` and the parser's message
+    /// (including line and column). Create and edit run the same check.
+    Validate {
+        #[command(flatten)]
+        src: ContentSrc,
+    },
     /// Delete a template.
     Delete {
         theme: String,
@@ -152,6 +160,16 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
                 &["webtemplates", "theme", &theme, "template", &name],
                 Some(&body),
             )
+        }
+        Cmd::Validate { src } => {
+            let content = src.read()?.ok_or_else(|| {
+                CliError::usage("Nothing to validate: pass --file <path> (or `-`) or --content.")
+            })?;
+            client.post(
+                &["webtemplates", "validate"],
+                Some(&json!({ "content": content })),
+            )?;
+            Ok(json!({ "valid": true }))
         }
         Cmd::Delete { theme, name, yes } => {
             require_yes(yes, &format!("web template '{name}' in theme '{theme}'"))?;

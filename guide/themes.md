@@ -67,6 +67,20 @@ raytha theme push ./my_theme --prune --dry-run
 - Creating a theme makes Raytha add all built-in templates itself. Pushing a pulled default theme
   to a new name therefore reports `unchanged`/`update` for those, and `create` only for your own.
 
+## Checking a template and switching themes
+
+```bash
+raytha web-template validate --file layout.liquid     # or --content '<liquid>'; exits non-zero with the parse error
+raytha theme match-templates new_theme --map aurora_list_posts=new_list_posts,aurora_detail_post=new_detail_post
+```
+
+- `validate` only parses the Liquid; it does not render it. Use it before pushing a template you doubt.
+- `match-templates` is for moving a live site to another theme without losing view and item bindings. Each
+  `--map OLD=NEW` pairs a template of the **active** theme with one of the new theme (`--map-json` takes an object).
+  It runs as a background job, returns the job id, and then **makes the new theme active**. Only templates that are
+  still unbound in the new theme are accepted, and an empty map just activates. Do not delete the theme right after
+  calling it, because the job may not have finished.
+
 ## Piece by piece
 
 For a single change, skip the directory:

@@ -109,6 +109,27 @@ pub enum Cmd {
         #[arg(long)]
         yes: bool,
     },
+    /// Point items at one detail template of the active theme (after a theme switch, say).
+    ///
+    /// Give `--ids`/`--ids-file` for specific items, or `--all` for every item of the type.
+    AssignTemplate {
+        content_type: String,
+        /// Web template developer name in the ACTIVE theme.
+        #[arg(long, conflicts_with = "template_id")]
+        template: Option<String>,
+        /// Web template id, instead of --template.
+        #[arg(long)]
+        template_id: Option<String>,
+        /// Comma-separated item ids.
+        #[arg(long, value_delimiter = ',')]
+        ids: Vec<String>,
+        /// File with ids: a JSON array, or ids separated by whitespace. `-` for stdin.
+        #[arg(long, value_name = "PATH|-")]
+        ids_file: Option<String>,
+        /// Apply to every item of the content type.
+        #[arg(long, conflicts_with_all = ["ids", "ids_file"])]
+        all: bool,
+    },
     /// List trashed items.
     Trash { content_type: String },
     /// Restore a trashed item.
@@ -291,6 +312,37 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
                 &["contentitems", &content_type, "items"],
                 &json!({ "ids": ids }),
             )
+        }
+        Cmd::AssignTemplate {
+            content_type,
+            template,
+            template_id,
+            mut ids,
+            ids_file,
+            all,
+        } => {
+            let template_id =
+                resolve_template(client, template.as_deref(), template_id.as_deref(), None)?
+                    .ok_or_else(|| {
+                        CliError::usage("A template is required: pass --template or --template-id.")
+                    })?;
+            if let Some(src) = ids_file {
+                ids.extend(parse_ids(&read_text(&src)?)?);
+            }
+            ids.retain(|id| !id.is_empty());
+            ids.sort();
+            ids.dedup();
+            let mut body = json!({ "templateId": template_id });
+            if all {
+                // omitting the ids moves every item of the content type
+            } else if ids.is_empty() {
+                return Err(CliError::usage("No item ids given.").with_hint(
+                    "Pass --ids a,b,c, --ids-file ids.json, or --all for every item of the type.",
+                ));
+            } else {
+                body["contentItemIds"] = json!(ids);
+            }
+            client.post(&["contentitems", &content_type, "template"], Some(&body))
         }
         Cmd::Trash { content_type } => client.get(&["contentitems", &content_type, "trash"], &[]),
         Cmd::Restore { content_type, id } => {

@@ -44,6 +44,21 @@ pub enum Cmd {
         #[arg(long)]
         yes: bool,
     },
+    /// Tell Raytha which template of THIS theme replaces each template of the active theme.
+    ///
+    /// Views and content items stay bound to the active theme's templates until they are matched.
+    /// `--map old=new` pairs an active-theme template developer name with one from this theme.
+    /// Runs as a background job (returns its id) and then makes this theme the active one.
+    /// Only templates that still have no binding in this theme are accepted.
+    MatchTemplates {
+        developer_name: String,
+        /// `active_template=this_theme_template`, repeatable or comma separated.
+        #[arg(long = "map", value_delimiter = ',', value_name = "OLD=NEW")]
+        map: Vec<String>,
+        /// JSON object `{"old":"new"}`: inline, `@path` or `-`.
+        #[arg(long, value_name = "JSON|@PATH|-")]
+        map_json: Option<String>,
+    },
     /// Make this theme the one the public site renders with.
     Activate { developer_name: String },
     /// Download a theme into a directory of plain files you can edit.
@@ -161,6 +176,30 @@ pub fn run(client: &Client, cmd: Cmd) -> Result<Value> {
                 &format!("theme '{developer_name}' and all its templates"),
             )?;
             client.delete(&["themes", &developer_name], &[])
+        }
+        Cmd::MatchTemplates {
+            developer_name,
+            map,
+            map_json,
+        } => {
+            let mut pairs = serde_json::Map::new();
+            if let Some(raw) = map_json {
+                match crate::input::json_value(&raw)? {
+                    Value::Object(m) => pairs.extend(m),
+                    _ => return Err(CliError::usage("--map-json must be a JSON object.")),
+                }
+            }
+            for entry in map {
+                let (old, new) = entry.split_once('=').ok_or_else(|| {
+                    CliError::usage(format!("'{entry}' is not OLD=NEW."))
+                        .with_hint("Example: --map raytha_html_content_item_list=aurora_list_posts")
+                })?;
+                pairs.insert(old.trim().to_string(), json!(new.trim()));
+            }
+            client.post(
+                &["themes", &developer_name, "match-web-templates"],
+                Some(&json!({ "matchedWebTemplateDeveloperNames": pairs })),
+            )
         }
         Cmd::Activate { developer_name } => {
             client.post(&["themes", &developer_name, "set-active"], None)
