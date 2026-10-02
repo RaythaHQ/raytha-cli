@@ -23,7 +23,6 @@ for ct in CONTENT_TYPES:
         )
     fields = {f["developerName"] for f in rt("content-type", "get", name)["contentTypeFields"]}
     # relabel the two fields every new type starts with
-    # Relabelling needs `fields edit`, which currently 500s on the server (see RAYTHA_BUGS.md #1).
     for dev, label in [("title", ct["primary"][1]), ("content", ct["content_label"])] + ([("featured_image", "Cover image")] if name == "posts" else []):
         rt("content-type", "fields", "edit", name, dev, "--label", label, check=False)
     for dev, ftype, label, opts in ct["fields"]:

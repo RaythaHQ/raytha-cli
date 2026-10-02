@@ -4,8 +4,6 @@
 #   RAYTHA_URL=http://localhost:5200 RAYTHA_API_KEY=... ./build.sh
 #
 # Needs: the release CLI (cargo build --release), python3, rsvg-convert and ImageMagick (for the generated art).
-# Heads up: saving a base layout (one containing {% renderbody %}) is rejected by Raytha 2.0.0 as it stands, see
-# RAYTHA_BUGS.md #1. Apply raytha-renderbody-fix.patch to the server first.
 set -euo pipefail
 cd "$(dirname "$0")/seed"
 export RAYTHA_BIN="${RAYTHA_BIN:-$(cd ../../.. >/dev/null && pwd)/target/release/raytha}"

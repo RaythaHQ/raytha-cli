@@ -42,8 +42,8 @@ for ct, (route, tpl, field, direction, size) in DEFAULTS.items():
     views = rt("content-type", "views", "list", ct)["items"]
     current = next((v for v in views if v["developerName"] == f"{ct}_all"), None)
     if current is None:
-        # The stock view predates this theme, so it has no binding to the theme's list templates
-        # (RAYTHA_BUGS.md #6). Swap it for a fresh view, which is bound to the active theme.
+        # The stock view predates this theme, so it has no binding to the theme's list templates.
+        # Swap it for a fresh view, which is bound to the active theme.
         old = views[0]
         current = rt("content-type", "views", "create", ct, f"{ct}_all", "--label", old["label"], "--description", old.get("description") or "")
         for v in views:

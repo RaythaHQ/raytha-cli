@@ -1,7 +1,7 @@
 # CLI roadmap: features that make agents faster at building sites
 
-Ideas from building the Aurora Observatory demo (`examples/aurora-observatory`). Server-side asks are in
-[`raytha-feature-requests.md`](raytha-feature-requests.md). Status checked against Raytha 2.6.8.
+Ideas from building the Aurora Observatory demo (`examples/aurora-observatory`). Status checked against
+Raytha 2.6.8. Open items are GitHub issues.
 
 Priority: **P1** removes the most wasted effort, **P2** clear win, **P3** nice to have.
 
@@ -28,14 +28,14 @@ switching an existing site.
 
 ## Open
 
-### P1: `raytha apply`: one declarative manifest for a whole site
+### P1: `raytha apply`: one declarative manifest for a whole site ([#1](https://github.com/RaythaHQ/raytha-cli/issues/1))
 
 Much smaller than it was. `schema import` creates content types, fields and views in one call, and `content import`
 seeds items with relationships resolved by the server. What is left to cover: menus and items, site pages with their
 widgets, theme push, and media uploads, in dependency order, idempotent, with a dry-run diff and per-resource
 results. Proposal: `raytha apply site.json|dir [--dry-run]` as a thin driver over the commands that exist.
 
-### P2: Build-time macros in `theme push`
+### P2: Build-time macros in `theme push` ([#2](https://github.com/RaythaHQ/raytha-cli/issues/2))
 
 Every themed site needs the same preprocessing, which the demo did in `03_theme.py`.
 - `@@media:file.css@@` resolved to the uploaded object key (upload theme media first, replace by name).
@@ -43,41 +43,41 @@ Every themed site needs the same preprocessing, which the demo did in `03_theme.
   developer names.
 - Optional include-style partials (`@@include:chips.liquid@@`).
 
-### P2: `raytha theme lint`
+### P2: `raytha theme lint` ([#3](https://github.com/RaythaHQ/raytha-cli/issues/3))
 
 Offline checks before push: unknown tags (`layout`, already caught; syntax errors are caught by `push --dry-run`),
 unresolved macros, `render_section` names not matching the page's sections, content types referenced in sidecars
 that do not exist, widget field names used in the widget Liquid but missing from its JSON.
 
-### P2: Compact output for the remaining lists
+### P2: Compact output for the remaining lists ([#4](https://github.com/RaythaHQ/raytha-cli/issues/4))
 
 The server's `compact` exists only on the two view endpoints, and field selection was ruled out, so any further
 trimming is the CLI's job. `content list` returns every field of every item. Add a client-side `--fields a,b,c`
 (and a compact default) there; keep `--full` for the raw payload.
 
-### P2: Local validation in `content import`
+### P2: Local validation in `content import` ([#5](https://github.com/RaythaHQ/raytha-cli/issues/5))
 
 Check rows against `schema export` before sending (unknown field, bad choice, wrong type) and print the allowed
 values. The server already rejects each bad row with its field name, so this saves a round trip rather than adding
 safety.
 
-### P3: `raytha preview <path> [--png]`
+### P3: `raytha preview <path> [--png]` ([#6](https://github.com/RaythaHQ/raytha-cli/issues/6))
 
 `web-template preview` returns server-rendered HTML. A public-route variant that also saves a full-page screenshot
 and prints console errors, when headless Chromium is available, would catch layout bugs the HTML cannot show.
 
-### P3: Error hints that name the cause
+### P3: Error hints that name the cause ([#7](https://github.com/RaythaHQ/raytha-cli/issues/7))
 
 Mostly covered now that render failures name the template and give a position. Left: hints for a missing theme
 binding, an unknown filter `type`, and unresolvable `contentTypes` in a sidecar.
 
-### P3: `guide recipes`
+### P3: `guide recipes` ([#8](https://github.com/RaythaHQ/raytha-cli/issues/8))
 
 Worked Liquid and CLI snippets from the demo: relationships (`{% capture %}` id compare), repeaters, label mapping,
 list pages with filter chips, pagination, custom widgets that take a `view` field. Cover them with the guide parse
 test.
 
-### P3: `raytha doctor --deep`
+### P3: `raytha doctor --deep` ([#9](https://github.com/RaythaHQ/raytha-cli/issues/9))
 
 Report the active theme, whether every published view has a template in it, stock sample content still present, and
 templates nothing uses (`theme usage --unused`). Overlaps with `check`; keep `doctor` for configuration and

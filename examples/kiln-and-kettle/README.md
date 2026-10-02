@@ -31,10 +31,3 @@ examples/kiln-and-kettle/build.sh
 
 Needs `python3`, `rsvg-convert` and ImageMagick (`magick`). Every script is idempotent. The last step is
 `raytha check`, which requests all 88 public routes and fails if any is broken.
-
-Raytha 2.0.0 rejects any base layout on save (`Unknown tag 'renderbody'`); apply `raytha-renderbody-fix.patch` to the
-server first. See [RAYTHA_BUGS.md](../../RAYTHA_BUGS.md).
-
-## Raytha bugs found while building it
-
-Listed in [RAYTHA_BUGS.md](../../RAYTHA_BUGS.md).

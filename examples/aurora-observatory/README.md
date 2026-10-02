@@ -36,7 +36,3 @@ only applies the difference.
    schema choices, `@@chips:field@@` to filter buttons, `@@pager@@` to pagination.
 4. `04_seed.py`: creates items in dependency order and resolves relationships to ids.
 5. `05_views.py`, `06_menus.py`, `07_pages.py`.
-
-## Raytha bugs found while building it
-
-See [`RAYTHA_BUGS.md`](../../RAYTHA_BUGS.md).
