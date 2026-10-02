@@ -375,6 +375,75 @@ async fn content_edit_merge_starts_from_the_draft_when_there_is_one() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn content_edit_merge_unwraps_the_api_value_wrappers() {
+    // GET returns {value,text,hasValue} wrappers and expanded relationships; PUT wants bare values.
+    let h = Harness::new().await;
+    h.ok(
+        "GET",
+        "/contentitems/posts/ITEMID",
+        json!({"id": "ITEMID", "isDraft": false, "publishedContent": {
+            "title": {"value": "Live title", "text": "Live title", "hasValue": true},
+            "hide_author_bio": {"value": true, "text": "True", "hasValue": true},
+            "featured_image": {"value": null, "text": "", "hasValue": false},
+            "author_1": {"id": "AUTH1", "primaryField": "Zack", "routePath": "authors/zack"}
+        }}),
+    )
+    .await;
+    h.ok("PUT", "/contentitems/posts/ITEMID", json!("ITEMID"))
+        .await;
+    h.run(&[
+        "content",
+        "edit",
+        "posts",
+        "ITEMID",
+        "--data",
+        r#"{"featured_image":"key_cover.png"}"#,
+        "--merge",
+    ])
+    .await
+    .data();
+    let body = h.writes().await[0].body.clone().unwrap();
+    assert_eq!(
+        body["content"],
+        json!({"title": "Live title", "hide_author_bio": true,
+               "featured_image": "key_cover.png", "author_1": "AUTH1"})
+    );
+    h.assert_contract().await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn view_settings_without_a_template_is_a_usage_error() {
+    let h = Harness::new().await;
+    h.ok(
+        "GET",
+        "/contenttypes/posts/views/V1",
+        json!({"id": "V1", "isPublished": true, "routePath": "blog",
+               "defaultNumberOfItemsPerPage": 25, "maxNumberOfItemsPerPage": 80,
+               "ignoreClientFilterAndSortQueryParams": false}),
+    )
+    .await;
+    let out = h
+        .run(&[
+            "content-type",
+            "views",
+            "settings",
+            "posts",
+            "V1",
+            "--page-size",
+            "13",
+        ])
+        .await;
+    assert_eq!(out.code, 2);
+    assert!(
+        out.error()["message"]
+            .as_str()
+            .unwrap()
+            .contains("--template")
+    );
+    assert!(h.writes().await.is_empty());
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn content_publish_resaves_current_content_as_published() {
     let h = Harness::new().await;
     h.ok(

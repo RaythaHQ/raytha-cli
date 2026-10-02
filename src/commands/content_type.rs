@@ -538,9 +538,14 @@ fn run_views(client: &Client, cmd: ViewsCmd) -> Result<Value> {
                         .to_string())
                 ),
             );
-            if let Some(t) = template_id {
-                b.insert("templateId".into(), json!(t));
-            }
+            // The API does not return a view's template, so it cannot be carried over.
+            let Some(t) = template_id else {
+                return Err(CliError::usage(
+                    "Pass --template <developer-name> (or --template-id): the API requires the \
+                     template on every public-settings update and does not report the current one.",
+                ));
+            };
+            b.insert("templateId".into(), json!(t));
             b.insert(
                 "defaultNumberOfItemsPerPage".into(),
                 json!(page_size.unwrap_or_else(|| num("defaultNumberOfItemsPerPage", 50))),

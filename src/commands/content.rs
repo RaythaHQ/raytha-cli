@@ -439,13 +439,46 @@ pub fn current_content(item: &Value) -> Map<String, Value> {
         .get("isDraft")
         .and_then(Value::as_bool)
         .unwrap_or(false);
-    let pick = |key: &str| item.get(key).and_then(Value::as_object).cloned();
+    let pick = |key: &str| {
+        item.get(key).and_then(Value::as_object).map(|m| {
+            m.iter()
+                .map(|(k, v)| (k.clone(), writable_value(v)))
+                .collect::<Map<String, Value>>()
+        })
+    };
     if is_draft && let Some(d) = pick("draftContent") {
         return d;
     }
     pick("publishedContent")
         .or_else(|| pick("draftContent"))
         .unwrap_or_default()
+}
+
+/// Turn a field as the API *returns* it into the shape the API *accepts*.
+///
+/// GET wraps every value as `{"value": ..., "text": ..., "hasValue": ...}` and expands a
+/// relationship into the related item (`{"id": ..., "primaryField": ...}`). PUT wants the bare
+/// value, and a relationship as the related item's id. Sending the wrapper back stores it as a
+/// JSON string (the title becomes `{"text": ...}`) and wipes the relationship.
+pub fn writable_value(v: &Value) -> Value {
+    let Some(o) = v.as_object() else {
+        return v.clone();
+    };
+    if o.contains_key("hasValue") && (o.contains_key("value") || o.contains_key("text")) {
+        return match o.get("value") {
+            Some(Value::Object(inner))
+                if inner.contains_key("id") && inner.contains_key("primaryField") =>
+            {
+                inner["id"].clone()
+            }
+            Some(inner) => inner.clone(),
+            None => Value::Null,
+        };
+    }
+    if o.contains_key("id") && o.contains_key("primaryField") {
+        return o["id"].clone();
+    }
+    v.clone()
 }
 
 #[cfg(test)]
@@ -465,5 +498,27 @@ mod tests {
         assert_eq!(current_content(&item)["a"], 2);
         let item = json!({"isDraft": false, "draftContent": null, "publishedContent": {"a": 1}});
         assert_eq!(current_content(&item)["a"], 1);
+    }
+
+    #[test]
+    fn merge_base_unwraps_api_values() {
+        // What GET /contentitems/{type}/{id} returns for a few field types.
+        let item = json!({"isDraft": false, "publishedContent": {
+            "title": {"value": "Hello", "text": "Hello", "hasValue": true},
+            "hide_author_bio": {"value": true, "text": "True", "hasValue": true},
+            "featured_image": {"value": null, "text": "", "hasValue": false},
+            "tags": {"value": ["a", "b"], "text": "a, b", "hasValue": true},
+            "author_1": {"id": "KIb9", "primaryField": "Zack", "routePath": "authors/zack"},
+            "author_2": {"value": {"id": "AbCd", "primaryField": "Ann"}, "text": "Ann", "hasValue": true},
+            "plain": "already bare"
+        }});
+        let c = current_content(&item);
+        assert_eq!(c["title"], "Hello");
+        assert_eq!(c["hide_author_bio"], true);
+        assert_eq!(c["featured_image"], Value::Null);
+        assert_eq!(c["tags"], json!(["a", "b"]));
+        assert_eq!(c["author_1"], "KIb9");
+        assert_eq!(c["author_2"], "AbCd");
+        assert_eq!(c["plain"], "already bare");
     }
 }
