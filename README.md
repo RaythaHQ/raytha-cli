@@ -102,7 +102,7 @@ cargo test
 Integration tests run the real binary against a mock Raytha (wiremock) and check every request
 against a snapshot of Raytha's OpenAPI v1 operations (`tests/fixtures/openapi-v1.json`). To refresh
 the snapshot, run `scripts/refresh-openapi.py` against a running Raytha (it reads `/raytha/api/v1/swagger.json`: paths, methods,
-operation ids and parameters only).
+operation ids, parameters and request-body property names).
 
 `scripts/smoke.sh` runs a live check against a disposable Raytha instance. Read its header first.
 

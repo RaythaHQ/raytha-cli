@@ -1,6 +1,6 @@
 //! Shared test harness: a wiremock server standing in for Raytha, the compiled `raytha` binary
 //! run against it, and a contract check that every request the CLI sent is a real operation in
-//! the committed OpenAPI snapshot (`tests/fixtures/openapi-v1.json`).
+//! the committed OpenAPI snapshot (`tests/fixtures/openapi-v1.json`), including JSON body keys.
 #![allow(dead_code)]
 
 use serde_json::{Value, json};
@@ -163,8 +163,9 @@ impl Harness {
             .collect()
     }
 
-    /// Fails if any request the CLI made is not an operation in the OpenAPI snapshot, or used a
-    /// query parameter the operation does not declare.
+    /// Fails if any request the CLI made is not an operation in the OpenAPI snapshot, used a query
+    /// parameter the operation does not declare, or sent a JSON body key the operation's request
+    /// schema does not list. Body schemas have been distinct per command since Raytha 2.0.0.
     pub async fn assert_contract(&self) {
         let spec = spec_paths();
         for r in self.requests().await {
@@ -179,7 +180,8 @@ impl Harness {
                         r.method, r.path
                     )
                 });
-            let declared: Vec<String> = op.1[&r.method.to_lowercase()]["parameters"]
+            let operation = &op.1[&r.method.to_lowercase()];
+            let declared: Vec<String> = operation["parameters"]
                 .as_array()
                 .map(|a| {
                     a.iter()
@@ -192,6 +194,41 @@ impl Harness {
                 assert!(
                     declared.contains(&k.to_lowercase()),
                     "{} {}: query parameter '{k}' is not declared (declared: {declared:?})",
+                    r.method,
+                    r.path
+                );
+            }
+            let Some(keys) = r.body.as_ref().and_then(Value::as_object) else {
+                continue;
+            };
+            if keys.is_empty() {
+                continue;
+            }
+            let body = operation.get("requestBody");
+            let props: Vec<String> = body
+                .and_then(|b| b.get("properties"))
+                .and_then(Value::as_array)
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|p| p.as_str().map(str::to_string))
+                        .collect()
+                })
+                .unwrap_or_default();
+            let json_body = body
+                .and_then(|b| b.get("contentType"))
+                .and_then(Value::as_str)
+                == Some("application/json");
+            assert!(
+                json_body && !props.is_empty(),
+                "{} {} sent a JSON body but the spec declares no JSON request body (keys: {:?})",
+                r.method,
+                r.path,
+                keys.keys().collect::<Vec<_>>()
+            );
+            for k in keys.keys() {
+                assert!(
+                    props.iter().any(|p| p == k),
+                    "{} {}: body property '{k}' is not in the request schema (declared: {props:?})",
                     r.method,
                     r.path
                 );

@@ -30,6 +30,8 @@ Configuration is two environment variables: `RAYTHA_URL` and `RAYTHA_API_KEY`.
   actionable errors with hints (`src/client.rs::http_error`).
 - Do not add a local `--url` flag to a subcommand; it would shadow the global one. Use another name
   (`menu items create --link`).
-- Raytha's OpenAPI request-body schemas are unreliable; paths, methods and parameters are fine. Take
-  body shapes from the C# sources in the Raytha repo, and cover them with a test.
+- Raytha 2.0.0's OpenAPI document is trustworthy, including request bodies: each command has its
+  own schema (`raytha spec`). Paths, methods, parameters and body property names can be taken from
+  it. The `content` object on content items and widget `settings` stay free-form; those follow the
+  content type or the widget's fields. Cover a new command with a test.
 - The guides are embedded with `include_str!`; editing `guide/*.md` changes the binary.

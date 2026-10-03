@@ -68,5 +68,5 @@ Every failure prints one JSON document on stdout and exits non-zero:
 3. `raytha web-template get <theme> <name> --out /tmp/t.liquid` to see what is live.
 4. Change one thing, push, fetch again.
 
-If a needed operation has no command, `raytha spec --summary` lists every API operation. Paths and
-methods are right; request body schemas are not reliable, so probe with a small request first.
+If a needed operation has no command, `raytha spec` shows it, including the request body fields.
+Send only those fields; a small request is still the safest first try.

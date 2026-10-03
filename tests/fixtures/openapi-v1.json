@@ -1,5 +1,5 @@
 {
- "note": "Snapshot of Raytha's OpenAPI v1 paths: method, operationId and parameters only. Request body schemas are omitted on purpose; they are unreliable in the source spec.",
+ "note": "Snapshot of Raytha's OpenAPI v1 paths: method, operationId, parameters and the top-level request-body property names. Since Raytha 2.0.0 each command has its own schema, so these names are the contract.",
  "paths": {
   "/raytha/api/v1/BackgroundTasks/{id}": {
    "get": {
@@ -53,7 +53,17 @@
       "in": "path",
       "name": "contentTypeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "saveAsDraft",
+      "templateId",
+      "contentTypeDeveloperName",
+      "content"
+     ],
+     "schema": "ContentItems.Commands.CreateContentItemCommand"
+    }
    }
   },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/batch": {
@@ -64,7 +74,16 @@
       "in": "path",
       "name": "contentTypeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "contentTypeDeveloperName",
+      "templateId",
+      "items"
+     ],
+     "schema": "ContentItems.Commands.BeginBatchCreateContentItemsCommand"
+    }
    }
   },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/items": {
@@ -75,7 +94,15 @@
       "in": "path",
       "name": "contentTypeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "contentTypeId",
+      "ids"
+     ],
+     "schema": "ContentItems.Commands.DeleteContentItemsCommand"
+    }
    }
   },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/route/{routePath}": {
@@ -101,7 +128,16 @@
       "in": "path",
       "name": "contentTypeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "contentTypeId",
+      "templateId",
+      "contentItemIds"
+     ],
+     "schema": "ContentItems.Commands.AssignContentItemTemplatesCommand"
+    }
    }
   },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/trash": {
@@ -155,7 +191,16 @@
       "in": "path",
       "name": "contentItemId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "saveAsDraft",
+      "content",
+      "id"
+     ],
+     "schema": "ContentItems.Commands.EditContentItemCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteContentItem",
@@ -228,7 +273,16 @@
       "in": "path",
       "name": "contentItemId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "templateId",
+      "routePath",
+      "id"
+     ],
+     "schema": "ContentItems.Commands.EditContentItemSettingsCommand"
+    }
    }
   },
   "/raytha/api/v1/ContentItems/{contentTypeDeveloperName}/{contentItemId}/unpublish": {
@@ -270,7 +324,18 @@
    },
    "post": {
     "operationId": "CreateContentType",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "labelPlural",
+      "labelSingular",
+      "developerName",
+      "description",
+      "defaultRouteTemplate"
+     ],
+     "schema": "ContentTypes.Commands.CreateContentTypeCommand"
+    }
    }
   },
   "/raytha/api/v1/ContentTypes/export": {
@@ -293,7 +358,15 @@
       "in": "query",
       "name": "dryRun"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "schemaVersion",
+      "contentTypes"
+     ],
+     "schema": "SchemaDocument"
+    }
    }
   },
   "/raytha/api/v1/ContentTypes/{contentTypeDeveloperName}": {
@@ -340,7 +413,19 @@
    },
    "post": {
     "operationId": "CreateFunction",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "name",
+      "developerName",
+      "triggerType",
+      "isActive",
+      "code",
+      "routePath"
+     ],
+     "schema": "RaythaFunctions.Commands.CreateRaythaFunctionCommand"
+    }
    }
   },
   "/raytha/api/v1/Functions/{developerName}": {
@@ -360,7 +445,19 @@
       "in": "path",
       "name": "developerName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "name",
+      "triggerType",
+      "isActive",
+      "code",
+      "routePath",
+      "id"
+     ],
+     "schema": "RaythaFunctions.Commands.EditRaythaFunctionCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteFunction",
@@ -440,7 +537,13 @@
   "/raytha/api/v1/MediaItems/upload-direct": {
    "post": {
     "operationId": "UploadDirect",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "multipart/form-data",
+     "properties": [
+      "file"
+     ]
+    }
    }
   },
   "/raytha/api/v1/MediaItems/{objectKey}": {
@@ -487,7 +590,15 @@
    },
    "post": {
     "operationId": "CreateMenu",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "developerName"
+     ],
+     "schema": "NavigationMenus.Commands.CreateNavigationMenuCommand"
+    }
    }
   },
   "/raytha/api/v1/Menus/{menuDeveloperName}": {
@@ -507,7 +618,15 @@
       "in": "path",
       "name": "menuDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "id"
+     ],
+     "schema": "NavigationMenus.Commands.EditNavigationMenuCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteMenu",
@@ -536,7 +655,20 @@
       "in": "path",
       "name": "menuDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "navigationMenuId",
+      "label",
+      "url",
+      "isDisabled",
+      "openInNewTab",
+      "cssClassName",
+      "parentNavigationMenuItemId"
+     ],
+     "schema": "NavigationMenuItems.Commands.CreateNavigationMenuItemCommand"
+    }
    }
   },
   "/raytha/api/v1/Menus/{menuDeveloperName}/menu-items/{menuItemId}": {
@@ -564,7 +696,21 @@
       "in": "path",
       "name": "menuItemId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "url",
+      "isDisabled",
+      "openInNewTab",
+      "cssClassName",
+      "parentNavigationMenuItemId",
+      "navigationMenuId",
+      "id"
+     ],
+     "schema": "NavigationMenuItems.Commands.EditNavigationMenuItemCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteMenuItem",
@@ -592,7 +738,15 @@
       "in": "path",
       "name": "menuItemId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "ordinal",
+      "id"
+     ],
+     "schema": "NavigationMenuItems.Commands.ReorderNavigationMenuItemsCommand"
+    }
    }
   },
   "/raytha/api/v1/Menus/{menuDeveloperName}/set-main": {
@@ -636,7 +790,16 @@
    },
    "post": {
     "operationId": "CreateSitePage",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "title",
+      "saveAsDraft",
+      "templateId"
+     ],
+     "schema": "SitePages.Commands.CreateSitePageCommand"
+    }
    }
   },
   "/raytha/api/v1/SitePages/widget-definitions": {
@@ -662,7 +825,17 @@
       "in": "path",
       "name": "sitePageId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "title",
+      "saveAsDraft",
+      "templateId",
+      "id"
+     ],
+     "schema": "SitePages.Commands.EditSitePageCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteSitePage",
@@ -715,7 +888,15 @@
       "in": "path",
       "name": "sitePageId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "routePath",
+      "id"
+     ],
+     "schema": "SitePages.Commands.EditSitePageSettingsCommand"
+    }
    }
   },
   "/raytha/api/v1/SitePages/{sitePageId}/unpublish": {
@@ -737,7 +918,16 @@
       "in": "path",
       "name": "sitePageId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "sectionName",
+      "widgets",
+      "id"
+     ],
+     "schema": "SitePages.Commands.SaveWidgetsCommand"
+    }
    }
   },
   "/raytha/api/v1/SitePages/{sitePageId}/widgets/{widgetId}": {
@@ -752,7 +942,17 @@
       "in": "path",
       "name": "widgetId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "sitePageId",
+      "sectionName",
+      "widgetId",
+      "settingsJson"
+     ],
+     "schema": "SitePages.Commands.EditWidgetCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteSitePageWidget",
@@ -796,7 +996,17 @@
    },
    "post": {
     "operationId": "CreateTheme",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "title",
+      "developerName",
+      "description",
+      "insertDefaultThemeMediaItems"
+     ],
+     "schema": "Themes.Commands.CreateThemeCommand"
+    }
    }
   },
   "/raytha/api/v1/Themes/widget-field-types": {
@@ -822,7 +1032,16 @@
       "in": "path",
       "name": "themeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "title",
+      "description",
+      "id"
+     ],
+     "schema": "Themes.Commands.EditThemeCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteTheme",
@@ -842,7 +1061,16 @@
       "in": "path",
       "name": "themeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "title",
+      "developerName",
+      "description"
+     ],
+     "schema": "DuplicateThemeRequest"
+    }
    }
   },
   "/raytha/api/v1/Themes/{themeDeveloperName}/match-web-templates": {
@@ -853,7 +1081,15 @@
       "in": "path",
       "name": "themeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "matchedWebTemplateDeveloperNames",
+      "id"
+     ],
+     "schema": "Themes.Commands.BeginMatchWebTemplatesCommand"
+    }
    }
   },
   "/raytha/api/v1/Themes/{themeDeveloperName}/media": {
@@ -873,7 +1109,13 @@
       "in": "path",
       "name": "themeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "multipart/form-data",
+     "properties": [
+      "file"
+     ]
+    }
    }
   },
   "/raytha/api/v1/Themes/{themeDeveloperName}/media/{id}": {
@@ -937,7 +1179,15 @@
    },
    "post": {
     "operationId": "CreateUserGroup",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "developerName"
+     ],
+     "schema": "UserGroups.Commands.CreateUserGroupCommand"
+    }
    }
   },
   "/raytha/api/v1/UserGroups/{userGroupId}": {
@@ -957,7 +1207,15 @@
       "in": "path",
       "name": "userGroupId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "id"
+     ],
+     "schema": "UserGroups.Commands.EditUserGroupCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteUserGroup",
@@ -993,7 +1251,18 @@
    },
    "post": {
     "operationId": "CreateUser",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "firstName",
+      "lastName",
+      "emailAddress",
+      "userGroups",
+      "sendEmail"
+     ],
+     "schema": "Users.Commands.CreateUserCommand"
+    }
    }
   },
   "/raytha/api/v1/Users/{userId}": {
@@ -1013,7 +1282,18 @@
       "in": "path",
       "name": "userId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "firstName",
+      "lastName",
+      "emailAddress",
+      "userGroups",
+      "id"
+     ],
+     "schema": "Users.Commands.EditUserCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteUser",
@@ -1033,7 +1313,15 @@
       "in": "path",
       "name": "userId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "isActive",
+      "id"
+     ],
+     "schema": "Users.Commands.SetIsActiveCommand"
+    }
    }
   },
   "/raytha/api/v1/Users/{userId}/password": {
@@ -1044,7 +1332,15 @@
       "in": "path",
       "name": "userId"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "newPassword",
+      "sendEmail"
+     ],
+     "schema": "ResetPassword_RequestModel"
+    }
    }
   },
   "/raytha/api/v1/WebTemplates": {
@@ -1082,7 +1378,20 @@
       "in": "path",
       "name": "themeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "developerName",
+      "label",
+      "content",
+      "isBaseLayout",
+      "parentTemplateDeveloperName",
+      "allowAccessForNewContentTypes",
+      "templateAccessToModelDefinitions"
+     ],
+     "schema": "Themes.WebTemplates.Commands.CreateWebTemplateByDeveloperNameCommand"
+    }
    }
   },
   "/raytha/api/v1/WebTemplates/theme/{themeDeveloperName}/template/{templateDeveloperName}": {
@@ -1110,7 +1419,19 @@
       "in": "path",
       "name": "templateDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "content",
+      "isBaseLayout",
+      "parentTemplateDeveloperName",
+      "allowAccessForNewContentTypes",
+      "templateAccessToModelDefinitions"
+     ],
+     "schema": "Themes.WebTemplates.Commands.EditWebTemplateByDeveloperNameCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteWebTemplate",
@@ -1129,7 +1450,14 @@
   "/raytha/api/v1/WebTemplates/validate": {
    "post": {
     "operationId": "ValidateWebTemplate",
-    "parameters": []
+    "parameters": [],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "content"
+     ],
+     "schema": "Themes.WebTemplates.Queries.ValidateWebTemplateSyntaxQuery"
+    }
    }
   },
   "/raytha/api/v1/WebTemplates/{webTemplateId}": {
@@ -1197,7 +1525,18 @@
       "in": "path",
       "name": "themeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "themeId",
+      "label",
+      "developerName",
+      "content",
+      "fields"
+     ],
+     "schema": "Themes.WidgetTemplates.Commands.CreateWidgetTemplateCommand"
+    }
    }
   },
   "/raytha/api/v1/WidgetTemplates/theme/{themeDeveloperName}/template/{templateDeveloperName}": {
@@ -1225,7 +1564,16 @@
       "in": "path",
       "name": "templateDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "content",
+      "fields"
+     ],
+     "schema": "Themes.WidgetTemplates.Commands.EditWidgetTemplateByDeveloperNameCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteWidgetTemplate",
@@ -1260,7 +1608,19 @@
       "in": "path",
       "name": "contentTypeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "labelPlural",
+      "labelSingular",
+      "description",
+      "defaultRouteTemplate",
+      "primaryFieldId",
+      "id"
+     ],
+     "schema": "ContentTypes.Commands.EditContentTypeCommand"
+    }
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/fields": {
@@ -1271,7 +1631,22 @@
       "in": "path",
       "name": "contentTypeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "fieldType",
+      "developerName",
+      "label",
+      "isRequired",
+      "description",
+      "contentTypeId",
+      "choices",
+      "relatedContentTypeId",
+      "subFields"
+     ],
+     "schema": "ContentTypes.Commands.CreateContentTypeFieldCommand"
+    }
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/fields/{id}": {
@@ -1286,7 +1661,19 @@
       "in": "path",
       "name": "id"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "label",
+      "choices",
+      "isRequired",
+      "description",
+      "subFields",
+      "id"
+     ],
+     "schema": "ContentTypes.Commands.EditContentTypeFieldCommand"
+    }
    },
    "delete": {
     "operationId": "DeleteContentTypeField",
@@ -1314,7 +1701,15 @@
       "in": "path",
       "name": "id"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "newFieldOrder",
+      "id"
+     ],
+     "schema": "ContentTypes.Commands.ReorderContentTypeFieldCommand"
+    }
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/views": {
@@ -1354,7 +1749,18 @@
       "in": "path",
       "name": "contentTypeDeveloperName"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "contentTypeId",
+      "label",
+      "developerName",
+      "description",
+      "duplicateFromId"
+     ],
+     "schema": "Views.Commands.CreateViewCommand"
+    }
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/views/{id}": {
@@ -1401,7 +1807,15 @@
       "in": "path",
       "name": "id"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "filter",
+      "id"
+     ],
+     "schema": "Views.Commands.EditFilterCommand"
+    }
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/views/{id}/public-settings": {
@@ -1416,7 +1830,20 @@
       "in": "path",
       "name": "id"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "isPublished",
+      "routePath",
+      "templateId",
+      "defaultNumberOfItemsPerPage",
+      "maxNumberOfItemsPerPage",
+      "ignoreClientFilterAndSortQueryParams",
+      "id"
+     ],
+     "schema": "Views.Commands.EditPublicSettingsCommand"
+    }
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/views/{id}/set-as-home-page": {
@@ -1446,7 +1873,17 @@
       "in": "path",
       "name": "id"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "developerName",
+      "showColumn",
+      "orderByDirection",
+      "id"
+     ],
+     "schema": "Views.Commands.EditSortCommand"
+    }
    }
   },
   "/raytha/api/v1/contenttypes/{contentTypeDeveloperName}/views/{id}/sort/reorder": {
@@ -1461,7 +1898,16 @@
       "in": "path",
       "name": "id"
      }
-    ]
+    ],
+    "requestBody": {
+     "contentType": "application/json",
+     "properties": [
+      "developerName",
+      "newFieldOrder",
+      "id"
+     ],
+     "schema": "Views.Commands.ReorderSortCommand"
+    }
    }
   }
  }

@@ -114,5 +114,5 @@ return a URL to put in templates or widget settings. See `raytha guide media`.
 - Work from files. Keep the theme directory in git. The server is a deploy target, not the source.
 - Use `--dry-run` before `push`, especially with `--prune`.
 - Change one thing, push, fetch the page, look. Do not write ten templates before the first test.
-- When the CLI lacks a command, `raytha spec --summary` lists every API operation. Paths and
-  methods are reliable; body schemas are not (see `raytha guide overview`).
+- When the CLI lacks a command, `raytha spec` lists the operation and its request body fields
+  (see `raytha guide overview`).

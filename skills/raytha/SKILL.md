@@ -30,5 +30,6 @@ Other topics: `overview`, `themes`, `liquid`, `widgets`, `content-types`, `site-
 - Destructive commands need `--yes`. Edits are partial; omitted flags keep their value.
 - Site pages and widgets save to a draft; publish with `--publish` or `raytha site-page publish`.
 - After changes, fetch the public URL and read the HTML. Liquid errors appear only at render time.
-- If no command covers a need, `raytha spec --summary` lists API operations (paths and methods are
-  reliable, request body schemas are not).
+- If no command covers a need, `raytha spec` lists the API operation and its request body fields.
+  Since Raytha 2.0.0 those schemas are one per command and can be trusted. Content item `content`
+  and widget `settings` stay free-form.

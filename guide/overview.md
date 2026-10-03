@@ -86,8 +86,9 @@ where offered (`content import` always waits), or run `raytha task wait <id>`.
 
 ## Known quirks of the Raytha API
 
-- The OpenAPI request-body schemas (`raytha spec`) are unreliable: several bodies share a name and
-  show the wrong shape. Paths, methods and query parameters are right. Use the curated commands.
+- `raytha spec` is the live OpenAPI document. Since Raytha 2.0.0 each command has its own request
+  schema, so paths, methods, parameters and body fields are right. Prefer the curated commands;
+  they send those bodies for you.
 - There is no separate "publish" endpoint for content. `raytha content publish` re-saves the item
   as published.
 - Saving widgets writes the page's draft. Publish the page afterwards (`--publish`).
